@@ -1,5 +1,18 @@
 <template>
     <div class="shop">
+
+        <!-- Not Logged In Modal -->
+        <div id="not-logged-in-modal" class="modal">
+            <div class="modal-content">
+                <h6>You are not logged in.</h6>
+                <p>Register or Log In to continue.</p>
+            </div>
+            <div class="modal-footer">
+                <a href="/login" class="modal-close btn bg-primary">Login</a>
+                <a href="#" class="modal-close btn-flat">Close</a>
+            </div>
+        </div>
+
         <div class="container">
             <span class="heading"><i class="material-icons tiny">home</i> <strong> <router-link to="/">Home</router-link> </strong>/ Shop </span>
             <div class="section">
@@ -15,13 +28,15 @@
                         <div class="product-grid">
                             <div class="card" v-for="grocery of activeCategory" :key="grocery.id">
                                 <div class="card-image">
-                                    <img src="../assets/grocery.jpg">
+                                    <a :href="'/item/'+grocery.id"><img src="../assets/grocery.jpg" alt="Grocery Image"></a>
                                 </div>
                                 <div class="card-content">
-                                    <span class="card-title"> {{grocery['name']}} </span>
+                                    <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name}}</a> </span>
+                                    <p>{{grocery['cost_per_unit']}}</p>
                                 </div>
                                 <div class="card-action">
-                                    <a href="#">Add to cart</a>
+                                    <a @click="addItemToCart(grocery.id)" class="add-to-cart-btn btn-small btn-flat">Add to Cart</a>
+                                    <star-rating :clearable="true" :rating="0" :show-rating="false" :star-size="14" :animate="true" @rating-selected ="setRating($event, grocery.id)"></star-rating> 
                                 </div>
                             </div>
                         </div>
@@ -51,20 +66,55 @@ export default {
         [this.activeCategoryName, this.activeCategory] = Object.entries(this.categories)[0];
         
     },
+    mounted(){
+        var elems = document.querySelectorAll('.modal');
+        var instances = M.Modal.init(elems);    
+    },
     methods:{
-        ...mapActions(['getGroceries', 'getCart']),
+        ...mapActions(['getGroceries', 'getCart', 'addToCart', 'rateGrocery']),
         showCategory(category){
             this.activeCategoryName = category;
             this.activeCategory = this.categories[category];
+        },
+        async setRating(rating, groceryId){
+            if(this.isLoggedIn){
+                let form = new FormData();
+                form.set('item_id', groceryId);
+                form.set('rating', rating);
+                await this.rateGrocery(form);
+            }
+            else{
+                var notLoggedInModal = document.querySelector('#not-logged-in-modal');
+                let instance = M.Modal.getInstance(notLoggedInModal);
+
+                instance.open();
+            }
+        },
+        async addItemToCart(id){
+            if(this.isLoggedIn){
+                const form = new FormData();
+                form.set('item_id', id);
+                form.set('quantity', 1)
+                await this.addToCart(form);
+            }
+            else{
+                var notLoggedInModal = document.querySelector('#not-logged-in-modal');
+                let instance = M.Modal.getInstance(notLoggedInModal);
+
+                instance.open();
+            }
         }
     },
     computed:{
-        ...mapGetters(['groceries', 'isLoggedIn', 'categories'])
+        ...mapGetters(['groceries', 'isLoggedIn', 'categories']),
     }
 }
 </script>
 
 <style lang="scss" scoped>
+.bg-primary{
+  background: var(--bg-primary);
+}
 
 .shop{
     .heading{
@@ -142,13 +192,59 @@ export default {
                 grid-template-columns: repeat(3, auto);
 
                 .card{
-                    text-align: center;
+                    padding: 12px;
+                    box-sizing: content-box;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                    width: 200px;
+
                     .card-title{
-                        font-size: 14px;
+                        margin-bottom: 0;
+                        display: block;
+                        white-space: nowrap;
+                        overflow: hidden;
+                        a{
+                            color: orange;
+                            text-align: center;
+                            font-size: 14px;
+                            font-weight: bold;
+                        }
+                        a:hover{
+                            text-decoration: underline;
+                        }
                     }
 
-                    .card-action a{
-                        font-size: 12px;
+                    .card-content{
+                        text-align: center;
+                        padding:8px 0px 0px 0px;
+                        p{
+                            font-weight: bold;
+                            max-height: 80px;
+                            font-size: 12px;
+                            overflow: hidden;
+                        }
+                    }
+                    .card-image{
+                        width: 200px;
+                        img:hover{
+                            transform: scale(1.05);
+                        }
+                    }
+                    .card-action {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        padding-top:8px;
+                        padding-bottom: 8px;
+                        .add-to-cart-btn{
+                            color: orange;
+                            font-size: 0.8em;
+                        }
+                        .add-to-cart-btn:hover{
+                            background: orange;
+                            color: white;
+                        }
                     }
                 }
             }

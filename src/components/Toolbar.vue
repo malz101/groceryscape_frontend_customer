@@ -2,10 +2,7 @@
     <div class="toolbar">
         <div class="header-bar">
             <span id="brand">  <router-link to="/"><img src="../assets/default.svg" alt="" srcset=""></router-link> </span>
-            <div class="search-div">
-                <input type="search" name="" id="" placeholder="Enter Search Here...">
-                <a href="#" class="btn">Search</a>
-            </div>
+            
             <div class="cart-logout-container">
                 <span class="cart">
                     <a href="/cart" :data-content="cartAmount" id="cart-badge" class="btn-small"><i class="material-icons tiny">add_shopping_cart</i></a>
@@ -72,26 +69,7 @@ export default {
         font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
         color: black;
     }
-    .search-div{
-        display: flex;
-        align-items: flex-start;
-        a{  
-            display: flex;
-            align-items: center;
-            box-shadow: none;
-            height: 35px;
-            background: var(--color-primary);
-            color: #00242c;
-            border-radius: 0;
-        }
-        input{
-            width: 500px;
-            background: white;
-            padding: 16px;
-            box-sizing: border-box;
-            height: 35px;
-        }
-    }
+    
     .cart-logout-container{
         display: flex;
         align-items: center;
@@ -104,8 +82,8 @@ export default {
             a{
                 margin-right: 8px;
                 background: white;
-                height: 50px;
-                width: 50px;
+                height: 40px;
+                width: 40px;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
@@ -122,8 +100,9 @@ export default {
             content: attr(data-content);
             color: black;
             position: absolute;
-            top: 0px;
+            top: 0px;   
             right: 10px;
+            font-size: 0.8em;
             background: var(--color-primary);
             padding: 2px;
             line-height: 1;
@@ -134,13 +113,11 @@ export default {
 }
 
 nav {
-  padding-left: 16px;
-  padding-right: 16px;
   background: white;
   box-shadow: none;
   a{
       color: black;
-      font-size: 16px;
+      font-size: 14px;
   }
 }
 

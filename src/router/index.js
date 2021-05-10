@@ -6,6 +6,7 @@ import About from '../views/About';
 import Cart from '../views/Cart';
 import Login from '../views/Login';
 import Checkout from '../views/Checkout';
+import Item from '../views/Item';
 import store from '../store';
 
 Vue.use(VueRouter)
@@ -24,6 +25,10 @@ const routes = [
     component: Shop,
   },
   {
+    path:'/item/:id',
+    component:Item
+  },
+  {
     path:'/about',
     component: About
   },
@@ -34,6 +39,10 @@ const routes = [
   {
     path:'/checkout',
     component: Checkout
+  },
+  { 
+    path: "*", 
+    redirect: '/'
   }
 ];
 

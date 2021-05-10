@@ -14,7 +14,7 @@
                 <p> <a> St.James </a> </p>
             </div>
             <div class="grid-column">
-                <h5>Catergories</h5>
+                <h5>Categories</h5>
                 <p> <a> Vegetables </a> </p>
                 <p> <a> Staples </a> </p>
                 <p> <a> Meat and Poultry </a> </p>

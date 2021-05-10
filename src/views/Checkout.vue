@@ -4,9 +4,31 @@
       <h5>Checkout</h5>
       <p>Home / Checkout</p>
     </div>
-    <div class="section">
+
+    <!-- Modal Structure -->
+    <div id="checkout-success-modal" class="modal">
+      <div class="modal-content">
+        <h6>Checkout successful</h6>
+        <p>You may return to the store to continue shopping</p>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="modal-close btn-flat">Close</a>
+      </div>
+    </div>
+
+    <div id="checkout-failed-modal" class="modal">
+      <div class="modal-content">
+        <h6>Checkout failed</h6>
+        <p>Please try again</p>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="modal-close btn-flat">Close</a>
+      </div>
+    </div>
+
+    <div class="section">      
         <div class="container billing-container">
-            <h5>Billing Information</h5>
+            <h6>Billing Information</h6>
             <div class="billing-grid">
                 <div class="column-1">
                     <form action="">
@@ -17,10 +39,6 @@
                         <div>
                             <label for="last_name">Last Name</label>
                             <input type="text" name="last_name" id="last_name" v-model="lastName" required>
-                        </div>
-                        <div>
-                            <label for="street_name">Street address</label>
-                            <input type="text" name="street_name" id="street_name" v-model="streetAddress" required>
                         </div>
                         <div>
                             <label for="town">Town</label>
@@ -39,18 +57,20 @@
                             <input type="text" name="email" id="email" v-model="email" required>
                         </div>
                         <div>
-                            <label for="deliveryDate">Delivery date (optional)</label>
-                            <input type="text" name="deliveryDate" id="deliveryDate" v-model="deliveryDate" required>
+                            <label for="deliveryDate">Delivery date (optional): </label>
+                            <date-picker v-model="deliveryDate"></date-picker>
                         </div>
                         <div>
                             <select name="deliveryTime" id="deliveryTime">
                                 <option value="" disabled selected>Choose delivery time</option>
-                                <option value="9">9</option>
-                                <option value="10">10</option>
-                                <option value="11">11</option>
-                                <option value="12">12</option>
-                                <option value="13">13</option>
-                                <option value="14">14</option>
+                                <option value="9">09:00</option>
+                                <option value="10">10:00</option>
+                                <option value="11">11:00</option>
+                                <option value="12">12:00</option>
+                                <option value="13">13:00</option>
+                                <option value="14">14:00</option>
+                                <option value="15">15:00</option>
+                                <option value="16">16:00</option>
                             </select>
                         </div>
                     </form>
@@ -73,31 +93,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="cartItem of Object.values(cart)" :key="cartItem['grocery_id']">
+                    <tr v-for="cartItem of cart" :key="cartItem['grocery_id']">
                         <td>{{cartItem['name']}} x{{cartItem['quantity']}}</td>
-                        <td>$9.99</td>
+                        
+                        <td>${{cartItem['cost_before_tax']}}</td>
                     </tr>
                     <tr>
                         <th>Subtotal</th>
-                        <td>$9.99</td>
+                        <td>${{cart.reduce((accumulator, item) => accumulator + Number.parseFloat(item['cost_before_tax']), 0).toFixed(2)}}</td>
                     </tr>
                     <tr>
                         <th>Total</th>
-                        <td>$9.99</td>
+                        <td>${{cart.reduce((accumulator, item) => accumulator + Number.parseFloat(item['cost_before_tax']), 0).toFixed(2)}}</td>
                     </tr>
                 </tbody>
             </table>
             <div>
                 <p>
-                    <label for="direct">
-                        <input type="radio" name="payment" id="direct" value="direct" v-model="paymentMethod">
-                        <span>Direct Bank Transfer</span>
-                    </label>
-                </p>
-                <p>
                     <label for="cash">
                         <input type="radio" name="payment" id="cash" value="cash" v-model="paymentMethod">
                         <span>Cash on Delivery</span>
+                    </label>
+                </p>
+                <p>
+                    <label for="direct">
+                        <input type="radio" name="payment" id="direct" value="direct" v-model="paymentMethod">
+                        <span>Direct Bank Transfer</span>
                     </label>
                 </p>
             </div>
@@ -117,7 +138,6 @@ export default {
             firstName:'',
             lastName:'',
             country:'',
-            streetAddress:'',
             town:'',
             parish:'',
             phone:'',
@@ -125,7 +145,7 @@ export default {
             deliveryTime:'',
             deliveryDate:null,
             notes:'',
-            paymentMethod:'direct'
+            paymentMethod:'cash'
         }
     },
     async created(){
@@ -140,10 +160,25 @@ export default {
         this.town = this.customer['town'];
         this.country = 'Jamaica';
     },
+    mounted(){
+        var elems = document.querySelectorAll('.modal');
+        M.Modal.init(elems);
+    },
     methods:{
-        ...mapActions(['getCart', 'getCustomer']),
-        placeOrder(){
+        ...mapActions(['getCart', 'getCustomer', 'checkoutCart']),
+        async placeOrder(){
+            let resp  = await this.checkoutCart();
+            if(resp){
+                alert('Checkout successful!');
 
+                this.$router.push('/cart');
+            }
+            else{
+                var checkoutFailed = document.querySelector('#checkout-failed-modal');
+                let instance = M.Modal.getInstance(checkoutFailed);
+
+                instance.open();
+            }
         }
     },
     computed:{
@@ -189,7 +224,7 @@ export default {
     gap: 20px;
 
     label{
-        font-size: 1em;
+        font-size: 0.8em;
     }
 
     form{
@@ -198,6 +233,7 @@ export default {
             border-radius: 2px;
             box-sizing: border-box;
             padding-left: 8px;
+            font-size: 0.9em;
         }
         #deliveryTime{
             display: block;
@@ -205,6 +241,10 @@ export default {
     }
     form > *{
         margin-bottom: 20px;
+    }
+    textarea{
+        padding: 8px;
+        font-size: 0.9em;
     }
 }
 

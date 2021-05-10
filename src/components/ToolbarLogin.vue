@@ -2,10 +2,6 @@
     <div class="toolbar">
         <div class="header-bar">
             <span id="brand">  <router-link to="/"><img src="../assets/default.svg" alt="" srcset=""></router-link> </span>
-            <div class="search-div">
-                <input type="search" name="" id="" placeholder="Enter Search Here...">
-                <a href="#" class="btn">Search</a>
-            </div>
             <div class="cart-login-container"> 
                 <span class="login">
                     <a href="/login" class="btn-small">Login</a>
@@ -37,21 +33,10 @@
 import { mapActions, mapGetters } from 'vuex';
 export default {
     methods:{
-        ...mapActions(['logout']),
-        async signOut(){
-            await this.logout();
-            this.$router.push('/login');
-        },
-        async signIn(){
-
-        },
         async signUp(){
 
         }
     },
-    computed:{
-        ...mapGetters(['cartAmount'])
-    }
 }
 </script>
 
@@ -71,26 +56,7 @@ export default {
         font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
         color: black;
     }
-    .search-div{
-        display: flex;
-        align-items: flex-start;
-        a{  
-            display: flex;
-            align-items: center;
-            box-shadow: none;
-            height: 35px;
-            background: var(--color-primary);
-            color: #00242c;
-            border-radius: 0;
-        }
-        input{
-            width: 500px;
-            background: white;
-            padding: 16px;
-            box-sizing: border-box;
-            height: 35px;
-        }
-    }  
+  
     .cart-login-container{
         a{
             background: var(--color-primary);
@@ -101,33 +67,14 @@ export default {
 }
 
 nav {
-  padding-left: 16px;
-  padding-right: 16px;
   background: white;
   box-shadow: none;
+  height: 40px;
   a{
       color: black;
       font-size: 16px;
+      line-height: 40px;
   }
 }
 
-@media screen and (max-width:800px) {
-    .header-bar{
-        justify-content: space-evenly;
-        .search-div{
-            margin-bottom: 40px;
-            order: 3;
-            input{
-                width: 200px;
-                height: 30px;
-                padding: 8px;
-            }
-            a{
-                height: 30px;
-            }
-        }
-    }
-
-    
-}
 </style>

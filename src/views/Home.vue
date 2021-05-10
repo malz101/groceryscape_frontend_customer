@@ -1,7 +1,7 @@
 <template>
   <div class="home">
 
-    <!-- Modal Structure -->
+    <!-- Not Logged In Modal -->
     <div id="not-logged-in-modal" class="modal">
       <div class="modal-content">
         <h6>You are not logged in.</h6>
@@ -12,21 +12,29 @@
         <a href="#" class="modal-close btn-flat">Close</a>
       </div>
     </div>
-    <div class="section" v-for="category of Object.keys(categories)" :key="category">
+
+    <div class="container">
+      <div class="search-div">
+            <input type="search" name="search" id="search" v-model="searchString" placeholder="Enter Search Here..." @input="search">
+            <a @click="search" class="btn search-btn">Search</a>
+        </div>
+    </div>
+
+    <div class="section" v-for="category of Object.keys(localCategories)" :key="category">
       <div class="container">
-        <h5>{{category}}</h5>
+        <h6>{{category}}</h6>
         <div class="grid">
-          <div class="card" v-for="grocery of categories[category].slice(0, 8)" :key="grocery.id">
+          <div class="card" v-for="grocery of localCategories[category].slice(0, 8)" :key="grocery.id">
             <div class="card-image">
-              <img src="../assets/grocery.jpg">
+              <a :href="'/item/'+grocery.id"><img src="../assets/grocery.jpg" alt="Grocery Image"></a>
             </div>
             <div class="card-content">
-              <span class="card-title">{{grocery.name}}</span>
+              <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name}}</a> </span>
               <p>{{grocery['cost_per_unit']}}</p>
             </div>
             <div class="card-action">
               <a @click="addItemToCart(grocery.id)" class="add-to-cart-btn btn-small btn-flat">Add to Cart</a>
-              <star-rating :clearable="true" :rating="0" :show-rating="false" :star-size="20" :animate="true" @rating-selected ="setRating($event, grocery.id)"></star-rating> 
+              <star-rating :clearable="true" :rating="0" :show-rating="false" :star-size="14" :animate="true" @rating-selected ="setRating($event, grocery.id)"></star-rating> 
             </div>
           </div>
         </div>
@@ -79,11 +87,18 @@
 import { mapGetters, mapActions } from 'vuex';
 export default {
   name: 'Home',
+  data(){
+    return{
+      searchString:'',
+      localCategories:{}
+    }
+  },
   async created(){
     await this.getGroceries();
     if(this.isLoggedIn){
       await this.getCart();
     }
+    this.localCategories = this.categories;
   },
   mounted(){
     var elems = document.querySelectorAll('.modal');
@@ -104,18 +119,44 @@ export default {
 
         instance.open();
       }
-      
     },
     async setRating(rating, groceryId){
-      let form = new FormData();
-      form.set('item_id', groceryId);
-      form.set('rating', rating);
-      await this.rateGrocery(form);
+      if(this.isLoggedIn){
+        let form = new FormData();
+        form.set('item_id', groceryId);
+        form.set('rating', rating);
+        await this.rateGrocery(form);
+      }
+      else{
+        var notLoggedInModal = document.querySelector('#not-logged-in-modal');
+        let instance = M.Modal.getInstance(notLoggedInModal);
+
+        instance.open();
+      }
+    },
+    search(){
+      let result = {}
+      for(let [category, groceries] of Object.entries(this.categories)){
+        for(let grocery of groceries){
+          if(grocery['name'].toLowerCase().includes(this.searchString.toLowerCase())){
+            if(result[category]){
+              result[category].push(grocery);
+            }
+            else{
+              result[category] = [grocery];
+            }
+          }
+        }
+        if(category.toLowerCase().includes(this.searchString.toLowerCase())){
+          result[category] = groceries;
+        }
+      }
+      this.localCategories =  result;
     }
   },
   computed:{
-    ...mapGetters(['groceries','isLoggedIn','categories'])
-  }
+    ...mapGetters(['isLoggedIn','categories', 'cart']),
+  },
 }
 </script>
 
@@ -124,44 +165,96 @@ export default {
   background: var(--bg-primary);
 }
 
+.search-div{
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  a{  
+    display: flex;
+    align-items: center;
+    box-shadow: none;
+    height: 35px;
+    background: var(--color-primary);
+    color: #00242c;
+    border-radius: 0;
+  }
+  a:hover{
+    opacity: 0.9;
+  }
+
+  a:focus{
+    border: 1px solid grey;
+  }
+
+  input[type=search]{
+    width: 200px;
+    background: white;
+    padding: 16px;
+    box-sizing: border-box;
+    border: 1px solid grey;
+    height: 35px;
+  }
+  input[type=search]:focus{
+    border: 1px solid var(--color-primary);
+  }
+}  
+
 .grid{
   display: grid;
-  grid-template-columns: repeat(4, auto);
+  grid-template-columns: repeat(auto-fill, 200px);
+  justify-content: space-between;
+
   .card{
-    width: 200px;
-    padding: 16px;
+    width:170px;
+    padding: 12px;
     box-sizing: content-box;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     .card-image{
-      width: 200px;
-      height: 130px;
+      width: 170px;
+      height: 100px;
       img:hover{
         transform: scale(1.1);
       }
     }
-    .card-title{
-      color: orange;
-      text-align: center;
-      font-size: 18px;
-      font-weight: bold;
-    }
     .card-content{
       text-align: center;
+      padding:16px 0px 0px 0px;
       p{
         font-weight: bold;
         max-height: 80px;
-        font-size: 14px;
+        font-size: 10px;
         overflow: hidden;
       }
     }
+
+    .card-title{
+      margin-bottom: 0;
+      display: block;
+      width: 170px;
+      white-space: nowrap;
+      overflow: hidden;
+      a{
+        color: orange;
+        text-align: center;
+        font-size: 12px;
+        font-weight: bold;
+      }
+      a:hover{
+        text-decoration: underline;
+      }
+    }
+
     .card-action{
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding-top:8px;
+      padding-bottom: 8px;
       .add-to-cart-btn{
         color: orange;
+        font-size: 0.8em;
       }
       .add-to-cart-btn:hover{
         background: orange;
@@ -208,19 +301,6 @@ export default {
         font-size: 12px;
       }
     }
-  }
-}
-
-@media screen and (max-width:800px) {
-  .grid{
-    grid-template-columns: repeat(2, auto) ;
-  }
-}
-
-@media screen and (max-width:400px) {
-  .grid{
-    grid-template-columns: repeat(1, auto);
-    justify-content: center;
   }
 }
 

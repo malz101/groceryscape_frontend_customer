@@ -13,7 +13,7 @@ export default new Vuex.Store({
     groceries:[],
     categories:{},
     customer:{},
-    cart:{},
+    cart:[],
     cartAmount:0
   },
   getters:{
@@ -170,14 +170,15 @@ export default new Vuex.Store({
       .then(({msg, order})=>{
         if(msg == 'success'){
           dispatch('emptyCart');
-          alert('Checkout Successful');
+          return true;
         }
         else{
-          alert('An error occurred. Failed to checkout');
+          return false;
         }
       })
       .catch(({msg})=>{
         alert('An error occurred.'+msg);
+        return false;
       })
     },
     rateGrocery({getters}, payload){
