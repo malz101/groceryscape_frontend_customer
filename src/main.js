@@ -12,6 +12,10 @@ import 'material-design-icons/iconfont/material-icons.css';
 import DatePicker from 'vue2-datepicker';
 import 'vue2-datepicker/index.css';
 
+import Loading from 'vue-loading-overlay';
+import 'vue-loading-overlay/dist/vue-loading.css';
+
+import '@stripe/stripe-js';
 
 Vue.config.productionTip = false;
 
@@ -20,6 +24,7 @@ Vue.component('toolbar-login', ToolbarLogin);
 Vue.component('app-footer', Footer);
 Vue.component('star-rating', StarRating);
 Vue.component('date-picker', DatePicker);
+Vue.component('loading', Loading);
 
 new Vue({
   router,

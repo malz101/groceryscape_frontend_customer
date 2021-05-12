@@ -20,7 +20,6 @@
                 </router-link>
                     <ul id="nav-mobile" class="right">
                         <li><router-link to="/shop">Shop</router-link></li>
-                        <li><router-link to="#">Categories</router-link></li>
                         <li><router-link to="#" id="admin">Contact</router-link></li>
                         <li><router-link to="/about">About Us</router-link></li>
                     </ul>
@@ -47,13 +46,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
-.toolbar{
-    position: sticky;
-    top: 0;
-    z-index: 1;
-}
-
 .header-bar{
     width: 100%;
     background: var(--bg-primary);

@@ -3,6 +3,7 @@ import Vuex from 'vuex';
 import groceriesService from '../service/groceries.service';
 import authService from '../service/auth.service';
 import cartService from '../service/cart.service';
+import paymentService from '../service/payment.service';
 
 Vue.use(Vuex);
 
@@ -14,20 +15,34 @@ export default new Vuex.Store({
     categories:{},
     customer:{},
     cart:[],
-    cartAmount:0
+    cartAmount:0,
+    idsInCart:[],
+    stripeKey:''
   },
   getters:{
     isLoggedIn(state){
-      if(state.isLoggedIn == '' || state.isLoggedIn == undefined || state.isLoggedIn == null){
+      if (state.token == '' || state.token == undefined || state.token == null) {
         return false;
       }
-      return true;
+      else{
+        const { exp } = JSON.parse(atob(state.token.split('.')[1]));
+        if ((Date.now())/1000 >= exp) {
+          state.token = '';
+          return false;
+        }
+
+        return true;
+      }
+      
     },
     token(state){
       return state.token;
     },
     cartAmount(state){
-      return Object.values(state.cart).length;
+      return state.cart.length;
+    },
+    idsInCart(state){
+      return state.cart.map( item => item['grocery_id']); 
     },
     groceries(state){
       return state.groceries;
@@ -40,6 +55,9 @@ export default new Vuex.Store({
     },
     customer(state){
       return state.customer;
+    },
+    stripeKey(state){
+      return state.stripeKey;
     }
   },
   mutations: {
@@ -62,6 +80,9 @@ export default new Vuex.Store({
     },
     setCustomer(state, customer){
       state.customer=customer;
+    },
+    setStripeKey(state, key){
+      state.stripeKey = key;
     }
   },  
   actions: {
@@ -81,6 +102,7 @@ export default new Vuex.Store({
       return authService.logout(getters.token)
       .then((result)=>{
         commit('setLoggedIn', '');
+        commit('setToken', '');
       })
       .catch((err)=>{
         console.log(err);
@@ -112,7 +134,7 @@ export default new Vuex.Store({
           commit('setCart', data['items']);
         }
         else if(msg=='no items found'){
-          commit('setCart', {});
+          commit('setCart', []);
         }
         else{
           alert('An error occurred');
@@ -131,7 +153,7 @@ export default new Vuex.Store({
     addToCart({dispatch, getters}, payload){
       return cartService.addToCart(getters.token, payload)
       .then((result)=>{
-        dispatch('getCart');
+        return dispatch('getCart');
       })
       .catch((err)=>{
         console.log(err);
@@ -141,7 +163,7 @@ export default new Vuex.Store({
       return cartService.emptyCart(getters.token)
       .then(({msg})=>{
         if(msg=='success'){
-          dispatch('getCart');
+          return dispatch('getCart');
         }
         else{
           alert('An error occurred. Failed to empty');
@@ -188,6 +210,24 @@ export default new Vuex.Store({
       })
       .catch(({msg})=>{
         alert('An error occurred.'+msg);
+      })
+    },
+    getPublicKey({getters, commit}){
+      return paymentService.getPublicKey(getters.token)
+      .then(({data})=>{
+        commit('setStripeKey', data['payment_key'])
+      })
+      .catch(({error})=>{
+        alert(`An error occurred. ${error}`)
+      });
+    },
+    makePayment({getters}, body){
+      return paymentService.makePayment(getters.token, body)
+      .then((result)=>{
+        return result;
+      })
+      .catch((err)=>{
+        alert(err);
       })
     }
   },

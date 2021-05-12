@@ -61,7 +61,7 @@
                             <date-picker v-model="deliveryDate"></date-picker>
                         </div>
                         <div>
-                            <select name="deliveryTime" id="deliveryTime">
+                            <select class="browser-default" name="deliveryTime" id="deliveryTime">
                                 <option value="" disabled selected>Choose delivery time</option>
                                 <option value="9">09:00</option>
                                 <option value="10">10:00</option>
@@ -103,24 +103,33 @@
                         <td>${{cart.reduce((accumulator, item) => accumulator + Number.parseFloat(item['cost_before_tax']), 0).toFixed(2)}}</td>
                     </tr>
                     <tr>
-                        <th>Total</th>
-                        <td>${{cart.reduce((accumulator, item) => accumulator + Number.parseFloat(item['cost_before_tax']), 0).toFixed(2)}}</td>
+                        <th>Tax:</th>
+                        <td>${{cart.reduce((accumulator, item) => accumulator + Number.parseFloat(item['GCT']), 0).toFixed(2)}}</td>
+                    </tr>
+                    <tr>
+                        <th>Total:</th>
+                        <td><b>${{cart.reduce((accumulator, item) => accumulator + (Number.parseFloat(item['cost_before_tax'])+Number.parseFloat(item['GCT']))*Number.parseInt(item['quantity']), 0).toFixed(2)}}</b></td>
                     </tr>
                 </tbody>
             </table>
             <div>
                 <p>
                     <label for="cash">
-                        <input type="radio" name="payment" id="cash" value="cash" v-model="paymentMethod">
+                        <input type="radio" @change="cashChosen" name="payment" id="cash" value="cash" v-model="paymentMethod">
                         <span>Cash on Delivery</span>
                     </label>
                 </p>
                 <p>
                     <label for="direct">
-                        <input type="radio" name="payment" id="direct" value="direct" v-model="paymentMethod">
+                        <input type="radio" @change="cardChosen" name="payment" id="direct" value="direct" v-model="paymentMethod">
                         <span>Direct Bank Transfer</span>
                     </label>
                 </p>
+            </div>
+            
+            <div class="section stripe-card">
+                <loading :active.sync="isLoading" />
+                <div id="card-element"></div>
             </div>
             <a @click="placeOrder" class="btn primary-bg-color">Place Order</a>
         </div>
@@ -131,6 +140,7 @@
 <script>
 
 import { mapActions, mapGetters} from 'vuex';
+import {loadStripe} from '@stripe/stripe-js';
 
 export default {
     data(){
@@ -145,10 +155,14 @@ export default {
             deliveryTime:'',
             deliveryDate:null,
             notes:'',
-            paymentMethod:'cash'
+            paymentMethod:'cash',
+            stripe: {},
+            cardElement:{},
+            isLoading:true
         }
     },
     async created(){
+        this.isLoading = true;
         await this.getCart();
         await this.getCustomer();
 
@@ -159,30 +173,76 @@ export default {
         this.parish = this.customer['parish'];
         this.town = this.customer['town'];
         this.country = 'Jamaica';
+
+        await this.getPublicKey();
+        this.stripe = await loadStripe(this.stripeKey);
+        this.isLoading = false;
     },
     mounted(){
         var elems = document.querySelectorAll('.modal');
         M.Modal.init(elems);
     },
     methods:{
-        ...mapActions(['getCart', 'getCustomer', 'checkoutCart']),
+        ...mapActions(['getCart', 'getCustomer', 'checkoutCart', 'getPublicKey', 'makePayment']),
         async placeOrder(){
-            let resp  = await this.checkoutCart();
-            if(resp){
-                alert('Checkout successful!');
+            let result = await this.stripe.createPaymentMethod({
+                type: 'card',
+                card: this.cardElement,
+                billing_details: {
+                // Include any additional collected billing details.
+                    name:`${this.firstName} ${this.lastName}`,
+                },
+            });
 
-                this.$router.push('/cart');
+            if(result.error){
+                console.log(result.error);
             }
             else{
-                var checkoutFailed = document.querySelector('#checkout-failed-modal');
-                let instance = M.Modal.getInstance(checkoutFailed);
-
-                instance.open();
+                console.log(result.paymentMethod.id);
+                this.makePayment({"payment_method_id": result.paymentMethod.id, "order_id":10});   
             }
+
+        
+            // let resp  = await this.checkoutCart();
+            // if(resp){
+            //     alert('Checkout successful!');
+
+            //     this.$router.push('/cart');
+            // }
+            // else{
+            //     var checkoutFailed = document.querySelector('#checkout-failed-modal');
+            //     let instance = M.Modal.getInstance(checkoutFailed);
+
+            //     instance.open();
+            // }
+        },
+        cardChosen(){
+            var elements = this.stripe.elements();
+            var style = {
+                base: {
+                    color: "#32325d",
+                    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                    fontSmoothing: "antialiased",
+                    fontSize: "16px",
+                    "::placeholder": {
+                        color: "#aab7c4"
+                    }
+                },
+                invalid: {
+                    color: "#fa755a",
+                    iconColor: "#fa755a"
+                },
+            };
+
+            this.cardElement = elements.create('card', {style: style});
+            this.cardElement.mount('#card-element');
+        },
+        cashChosen(){
+            this.cardElement.unmount();
         }
     },
     computed:{
-        ...mapGetters(['cart', 'customer'])
+        ...mapGetters(['cart', 'customer', 'stripeKey'])
     }
 }
 </script>
@@ -250,6 +310,12 @@ export default {
 
 .billing-grid > *{
     width: 100%;
+}
+
+.stripe-card{
+    max-width: 400px;
+    margin-top:8px;
+    margin-bottom: 16px;
 }
 
 </style>

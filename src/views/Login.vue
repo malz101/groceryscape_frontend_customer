@@ -4,7 +4,7 @@
             <span class="logo"><img src="../assets/default.svg" alt="GroceryScape Logo" srcset=""></span>
             <p id="error-text" class="hide error-text">Login Failed. Try Again</p>
             <form>
-                <input type="text" placeholder="Username" v-model="username">
+                <input type="email" placeholder="Email" v-model="username">
                 <input type="password" placeholder="Password" v-model="password"> 
                 <a type="button" class="btn login-btn" @click="signIn">Log In</a>
             </form>

@@ -14,24 +14,46 @@
                             <th>Price</th>
                             <th>Quantity</th>
                             <th>Subtotal</th>
-                            <th class="empty-cart"> <a @click="clearCart" :class="{'disabled':Object.values(cart).length==0}" class="btn-small"><i class="material-icons tiny">delete</i></a> </th>
-                            <th></th>
+                            <th class="empty-cart"> <a @click="clearCart" :class="{'disabled':cart.length==0}" class="btn-small"><i class="material-icons tiny">delete</i></a> </th>
                         </tr>
                     </thead>
-                    <tbody v-if="Object.values(cart).length>0">
-                        <tr v-for="cartItem of Object.values(cart)" :key="cartItem['grocery_id']">
+                    <tbody v-if="cart.length>0">
+                        <tr v-for="cartItem of cart" :key="cartItem['grocery_id']">
                             <td><img class="item-img" src="../assets/grocery.jpg"></td>
                             <td> {{cartItem['name']}} </td>
-                            <td> {{cartItem['cost']}} </td>
+                            <td> ${{cartItem['cost_before_tax']}} </td>
                             <td> {{cartItem['quantity']}} </td>
-                            <td> {{100.00 * cartItem['quantity']}} </td>
+                            <td> ${{cartItem['cost_before_tax'] * cartItem['quantity']}} </td>
                             <td class="empty-cart"> <a @click="removeFromCart(cartItem['grocery_id'])" class="btn-small"><i class="material-icons tiny">close</i></a> </td>
-                            <td> </td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><a class="btn update-cart-btn" :class="{'disabled':true}">Update Cart</a></td>
                         </tr>
                     </tbody>
                     <p v-else>Cart Empty</p>
                 </table>
-                <a :class="{'disabled':Object.values(cart).length==0}" href="/checkout" class="btn checkout-btn">Checkout</a>
+                <table class="totals-table">
+                    <tbody>
+                        <tr>
+                            <th>Subtotal:</th>
+                            <td>${{cart.reduce((accumulator, item) => accumulator + Number.parseFloat(item['cost_before_tax'])*Number.parseInt(item['quantity']), 0).toFixed(2)}}</td>
+                        </tr>
+                        <tr>
+                            <th>Tax:</th>
+                            <td>${{cart.reduce((accumulator, item) => accumulator + Number.parseFloat(item['GCT']), 0).toFixed(2)}}</td>
+                        </tr>
+                        <tr>
+                            <th>Total:</th>
+                            <td><b>${{cart.reduce((accumulator, item) => accumulator + (Number.parseFloat(item['cost_before_tax'])+Number.parseFloat(item['GCT']))*Number.parseInt(item['quantity']), 0).toFixed(2)}}</b></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <a :class="{'disabled':cart.length==0}" href="/checkout" class="btn checkout-btn">Proceed To Checkout</a>
             </div>
         </div>
     </div>
@@ -42,6 +64,11 @@
 import { mapGetters, mapActions } from 'vuex';
 
 export default {
+    data(){
+        return{
+            isCartUpdate:false
+        }
+    },
     async created(){
         await this.getCart();
     },
@@ -92,6 +119,9 @@ export default {
     td{
         padding: 0;
     }
+    th:last-child, td:last-child{
+        text-align: center;
+    }
     .item-img{
         width: 100px;
     }
@@ -112,9 +142,27 @@ export default {
     background: var(--bg-primary);
     padding-right: 2.5em;
     padding-left: 2.5em;
+    text-transform: none;
 }
-.checkout-btn:hover{
+
+.update-cart-btn{
+    background: var(--bg-primary);
+    padding-right: 1.5em;
+    padding-left: 1.5em;
+    text-transform: none;
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.checkout-btn:hover, .update-cart-btn:hover{
     background: var(--color-primary);
     color: black;
+}
+
+.totals-table{
+    margin-bottom: 16px; 
+    td{
+        text-align: right;
+    }
 }
 </style>
