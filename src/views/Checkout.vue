@@ -185,48 +185,62 @@ export default {
     methods:{
         ...mapActions(['getCart', 'getCustomer', 'checkoutCart', 'getPublicKey', 'makePayment', 'setDeliveryLocation','scheduleOrder']),
         async placeOrder(){
+            
+            /**
+             * Regardless of the type of payment that the user chose this steps will always be taken when checking out a user
+             * The checkout action will create an order and return its id to be used to schedule the order by setting the delivery
+             * date and time. The id will also be used to set the delivery location
+             */
             try{
-                this.isLoading = true;
-                let result = await this.stripe.createPaymentMethod({
-                    type: 'card',
-                    card: this.cardElement,
-                    billing_details: {
-                    // Include any additional collected billing details.
-                        name:`${this.firstName} ${this.lastName}`,
-                    },
-                });
+                let resp = await this.checkoutCart();
+                if(!resp){
+                    M.toast({html: 'An error occurred. Please try again.'});
+                    return;
+                }
+                
+                let orderId = resp['order']['order_id'];
 
-                if(result.error){
-                    console.log(result.error);
+                let deliveryForm = new FormData();
+                deliveryForm.set('parish', this.parish);
+                deliveryForm.set('town', this.town);
+
+                await this.setDeliveryLocation({'orderId': orderId, 'body': deliveryForm});
+
+                let scheduleForm = new FormData();
+                scheduleForm.set('order_id', orderId);
+                scheduleForm.set('date', this.deliveryDate);
+
+                await this.scheduleOrder(scheduleForm);
+
+                if(this.paymentMethod == 'card'){
+                    this.isLoading = true;
+                    let result = await this.stripe.createPaymentMethod({
+                        type: 'card',
+                        card: this.cardElement,
+                        billing_details: {
+                        // Include any additional collected billing details.
+                            name:`${this.firstName} ${this.lastName}`,
+                        },
+                    });
+
+                    if(result.error){
+                        this.isLoading = false; 
+                        console.log(result.error);
+                        M.toast({html: 'An error occurred. Please refresh and try again'});
+                    }
+                    else{
+                        let paymentForm = new FormData();
+                        paymentForm.set("payment_method_id", result.paymentMethod.id);
+                        paymentForm.set("order_id", orderId);
+                        await this.makePayment(paymentForm);
+                        this.isLoading = false;  
+                        M.toast({html: 'Payment Complete. Checkout Successful!'});
+                    }   
+                    return; 
                 }
                 else{
-                    let resp = await this.checkoutCart();
-
-                    if(!resp){
-                        M.toast({html: 'An error occurred. Please try again.'});
-                        return;
-                    }
-                    
-                    let orderId = resp['order']['order_id'];
-
-                    let deliveryForm = new FormData();
-                    deliveryForm.set('parish', this.parish);
-                    deliveryForm.set('town', this.town);
-
-                    await this.setDeliveryLocation({'orderId': orderId, 'body': deliveryForm});
-
-                    let scheduleForm = new FormData();
-                    scheduleForm.set('order_id', orderId);
-                    scheduleForm.set('date', this.deliveryDate);
-
-                    await this.scheduleOrder(scheduleForm);
-
-                    let paymentForm = new FormData();
-                    paymentForm.set("payment_method_id", result.paymentMethod.id);
-                    paymentForm.set("order_id", orderId);
-                    await this.makePayment(paymentForm);
-                }   
-                this.isLoading = false;  
+                    M.toast({html: 'Checkout Successful! Your delivery is on the way.'});
+                }
             }
             catch(err){
                 this.isLoading = false; 
