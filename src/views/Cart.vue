@@ -18,6 +18,7 @@
                         </tr>
                     </thead>
                     <tbody v-if="cart.length>0">
+                        {{cart[0]['photo']}}
                         <tr v-for="cartItem of cart" :key="cartItem['grocery_id']">
                             <td><img class="item-img" src="../assets/grocery.jpg"></td>
                             <td> {{cartItem['name']}} </td>
@@ -60,17 +61,19 @@
 </template>
 
 <script>
-
+import config from '../config';
 import { mapGetters, mapActions } from 'vuex';
 
 export default {
     data(){
         return{
-            isCartUpdate:false
+            isCartUpdate:false,
+            api:''
         }
     },
     async created(){
         await this.getCart();
+        this.api = config.api;
     },
     methods:{
         ...mapActions(['getCart', 'emptyCart', 'removeItemFromCart']),

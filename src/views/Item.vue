@@ -21,13 +21,14 @@
                 <div class="section">
                     <div class="item-row">
                         <div class="item-image card">
-                            <img src="../assets/grocery.jpg" alt="">
+                            <img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image">
                         </div>
                         <div class="item-info card">
                             <h5>{{grocery['name']}}</h5>
                             <span>${{grocery['cost_per_unit']}}</span>
                             <div>
-                                <a @click="addItemToCart(grocery['id'])" class="btn-small add-to-cart-btn"> <i class="material-icons tiny">add_shopping_cart</i> ADD TO CART</a>
+                                <a v-if="!(idsInCart.includes(grocery.id))" @click="addItemToCart(grocery['id'])" class="btn-small add-to-cart-btn"> <i class="material-icons tiny">add_shopping_cart</i> ADD TO CART</a>
+                                <a v-else href="/cart" class="btn-small add-to-cart-btn"> <i class="material-icons tiny">shopping_cart</i> View cart</a>
                             </div>
                             <div class="item-description">
                                 <h6>Quick Overview</h6>
@@ -88,12 +89,14 @@
 </template>
 
 <script>
+import config from '../config';
 import { mapActions, mapGetters } from 'vuex'
 export default {
     data(){
         return{
             id: this.$route.params.id,
-            grocery:{}
+            grocery:{},
+            api:''
         }
     },
     async created(){
@@ -103,6 +106,10 @@ export default {
                 this.grocery = item;
             }
         }
+        if(this.isLoggedIn){
+            await this.getCart();
+        }
+        this.api = config.api;
     },
     mounted(){
         var elems = document.querySelectorAll('.modal');
@@ -112,12 +119,13 @@ export default {
         M.Tabs.init(el);
     },
     computed:{
-        ...mapGetters(['groceries', 'isLoggedIn', 'cartAmount'])
+        ...mapGetters(['groceries', 'isLoggedIn', 'cartAmount', 'idsInCart'])
     },
     methods:{
         ...mapActions(['getGroceries', 'getCart', 'addToCart', 'rateGrocery']),
         async addItemToCart(id){
             if(this.isLoggedIn){
+                console.log(id);
                 const form = new FormData();
                 form.set('item_id', id);
                 form.set('quantity', 1)
