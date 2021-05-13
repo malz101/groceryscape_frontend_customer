@@ -28,14 +28,15 @@
                         <div class="product-grid">
                             <div class="card" v-for="grocery of activeCategory" :key="grocery.id">
                                 <div class="card-image">
-                                    <a :href="'/item/'+grocery.id"><img src="../assets/grocery.jpg" alt="Grocery Image"></a>
+                                    <a :href="'/item/'+grocery.id"><img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image"></a>
                                 </div>
                                 <div class="card-content">
                                     <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name}}</a> </span>
                                     <p>{{grocery['cost_per_unit']}}</p>
                                 </div>
                                 <div class="card-action">
-                                    <a @click="addItemToCart(grocery.id)" class="add-to-cart-btn btn-small btn-flat">Add to Cart</a>
+                                    <a v-if="!(idsInCart.includes(grocery.id))" @click="addItemToCart(grocery.id)" class="add-to-cart-btn btn-small btn-flat">Add to Cart</a>
+                                    <a v-else href="/cart" class="add-to-cart-btn btn-small btn-flat">View Cart</a>
                                     <star-rating :clearable="true" :rating="0" :show-rating="false" :star-size="14" :animate="true" @rating-selected ="setRating($event, grocery.id)"></star-rating> 
                                 </div>
                             </div>
@@ -50,12 +51,14 @@
 <script>
 
 import { mapGetters, mapActions } from 'vuex';
+import config from '../config';
 
 export default {
     data(){
         return{
             activeCategory:[],
-            activeCategoryName:''
+            activeCategoryName:'',
+            api:''
         }
     },
     async created(){
@@ -63,6 +66,7 @@ export default {
         if(this.isLoggedIn){
             await this.getCart();
         }
+        this.api = config.api;
         [this.activeCategoryName, this.activeCategory] = Object.entries(this.categories)[0];
         
     },
@@ -106,7 +110,7 @@ export default {
         }
     },
     computed:{
-        ...mapGetters(['groceries', 'isLoggedIn', 'categories']),
+        ...mapGetters(['groceries', 'isLoggedIn', 'categories', 'idsInCart']),
     }
 }
 </script>
@@ -197,7 +201,7 @@ export default {
                     display: flex;
                     flex-direction: column;
                     justify-content: space-between;
-                    width: 200px;
+                    width: 180px;
 
                     .card-title{
                         margin-bottom: 0;
@@ -226,7 +230,11 @@ export default {
                         }
                     }
                     .card-image{
-                        width: 200px;
+                        width: 180px;
+                        height: 100px;
+                        img{
+                            height: 100px;
+                        }
                         img:hover{
                             transform: scale(1.05);
                         }

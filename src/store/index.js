@@ -4,6 +4,7 @@ import groceriesService from '../service/groceries.service';
 import authService from '../service/auth.service';
 import cartService from '../service/cart.service';
 import paymentService from '../service/payment.service';
+import orderService from '../service/order.service';
 
 Vue.use(Vuex);
 
@@ -189,10 +190,10 @@ export default new Vuex.Store({
     },
     checkoutCart({dispatch, getters}){
       return cartService.checkoutCart(getters.token)
-      .then(({msg, order})=>{
+      .then(async ({msg, data})=>{
         if(msg == 'success'){
-          dispatch('emptyCart');
-          return true;
+          await dispatch('emptyCart');
+          return data;
         }
         else{
           return false;
@@ -228,7 +229,25 @@ export default new Vuex.Store({
       })
       .catch((err)=>{
         alert(err);
+      });
+    },
+    setDeliveryLocation({getters}, payload){
+      return orderService.setDeliveryLocation(getters.token, payload.orderId, payload.body)
+      .then((data)=>{
+        console.log(data);
       })
+      .catch((err)=>{
+        alert(err);
+      });
+    },
+    scheduleOrder({getters}, payload){
+      return orderService.scheduleOrder(getters.token, payload)
+      .then((data)=>{
+        console.log(data);
+      })
+      .catch((err)=>{
+        alert(err);
+      });
     }
   },
   modules: {

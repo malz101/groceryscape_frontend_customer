@@ -19,6 +19,7 @@
             <a @click="search" class="btn search-btn">Search</a>
         </div>
     </div>
+    
     <div class="section vld-parent">
       <div v-if="localCategories!={} && !isLoading">
         <div class="container" v-for="category of Object.keys(localCategories).sort()" :key="category">
@@ -26,11 +27,11 @@
           <div class="grid">
             <div class="card" v-for="grocery of localCategories[category].slice(0, 8)" :key="grocery.id">
               <div class="card-image">
-                <a :href="'/item/'+grocery.id"><img src="../assets/grocery.jpg" alt="Grocery Image"></a>
+                <a :href="'/item/'+grocery.id"><img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image"></a>
               </div>
               <div class="card-content">
                 <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name}}</a> </span>
-                <p>{{grocery['cost_per_unit']}}</p>
+                <p>${{grocery['cost_per_unit']}}</p>
               </div>
               <div class="card-action">
                 <a v-if="!(idsInCart.includes(grocery.id))" @click="addItemToCart(grocery.id)" class="add-to-cart-btn btn-small btn-flat">Add to Cart</a>
@@ -90,7 +91,7 @@
 
 <script>
 // @ is an alias to /src
-
+import config from '../config';
 import { mapGetters, mapActions } from 'vuex';
 export default {
   name: 'Home',
@@ -98,7 +99,8 @@ export default {
     return{
       searchString:'',
       localCategories:{},
-      isLoading: true
+      isLoading: true,
+      api:''
     }
   },
   async created(){
@@ -108,6 +110,7 @@ export default {
       await this.getCart();
     }
     this.localCategories = this.categories;
+    this.api = config.api;
     this.isLoading = false;
   },
   mounted(){
@@ -224,6 +227,9 @@ export default {
     .card-image{
       width: 170px;
       height: 100px;
+      img{
+        height: 100px;
+      }
       img:hover{
         transform: scale(1.1);
       }

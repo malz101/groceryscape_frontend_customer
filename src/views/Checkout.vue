@@ -57,7 +57,7 @@
                             <input type="text" name="email" id="email" v-model="email" required>
                         </div>
                         <div>
-                            <label for="deliveryDate">Delivery date (optional): </label>
+                            <label for="deliveryDate">Delivery date: </label>
                             <date-picker v-model="deliveryDate"></date-picker>
                         </div>
                         <div>
@@ -183,38 +183,56 @@ export default {
         M.Modal.init(elems);
     },
     methods:{
-        ...mapActions(['getCart', 'getCustomer', 'checkoutCart', 'getPublicKey', 'makePayment']),
+        ...mapActions(['getCart', 'getCustomer', 'checkoutCart', 'getPublicKey', 'makePayment', 'setDeliveryLocation','scheduleOrder']),
         async placeOrder(){
-            let result = await this.stripe.createPaymentMethod({
-                type: 'card',
-                card: this.cardElement,
-                billing_details: {
-                // Include any additional collected billing details.
-                    name:`${this.firstName} ${this.lastName}`,
-                },
-            });
+            try{
+                this.isLoading = true;
+                let result = await this.stripe.createPaymentMethod({
+                    type: 'card',
+                    card: this.cardElement,
+                    billing_details: {
+                    // Include any additional collected billing details.
+                        name:`${this.firstName} ${this.lastName}`,
+                    },
+                });
 
-            if(result.error){
-                console.log(result.error);
+                if(result.error){
+                    console.log(result.error);
+                }
+                else{
+                    let resp = await this.checkoutCart();
+
+                    if(!resp){
+                        M.toast({html: 'An error occurred. Please try again.'});
+                        return;
+                    }
+                    
+                    let orderId = resp['order']['order_id'];
+
+                    let deliveryForm = new FormData();
+                    deliveryForm.set('parish', this.parish);
+                    deliveryForm.set('town', this.town);
+
+                    await this.setDeliveryLocation({'orderId': orderId, 'body': deliveryForm});
+
+                    let scheduleForm = new FormData();
+                    scheduleForm.set('order_id', orderId);
+                    scheduleForm.set('date', this.deliveryDate);
+
+                    await this.scheduleOrder(scheduleForm);
+
+                    let paymentForm = new FormData();
+                    paymentForm.set("payment_method_id", result.paymentMethod.id);
+                    paymentForm.set("order_id", orderId);
+                    await this.makePayment(paymentForm);
+                }   
+                this.isLoading = false;  
             }
-            else{
-                console.log(result.paymentMethod.id);
-                this.makePayment({"payment_method_id": result.paymentMethod.id, "order_id":10});   
+            catch(err){
+                this.isLoading = false; 
+                console.log(err);
+                M.toast({html: 'An error occurred. Please try again.'});
             }
-
-        
-            // let resp  = await this.checkoutCart();
-            // if(resp){
-            //     alert('Checkout successful!');
-
-            //     this.$router.push('/cart');
-            // }
-            // else{
-            //     var checkoutFailed = document.querySelector('#checkout-failed-modal');
-            //     let instance = M.Modal.getInstance(checkoutFailed);
-
-            //     instance.open();
-            // }
         },
         cardChosen(){
             var elements = this.stripe.elements();

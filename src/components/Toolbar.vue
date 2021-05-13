@@ -84,6 +84,12 @@ export default {
                     color: #000;
                 }
             }
+            a:hover{
+                background: var(--color-primary);
+                i{
+                    color: var(--bg-primary);
+                }
+            }
         }
         .cart{
             position: relative;

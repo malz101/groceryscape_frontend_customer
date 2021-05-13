@@ -60,7 +60,10 @@ export default {
         a{
             background: var(--color-primary);
             color: #00242c;
-            border-radius:0 ;
+            // border-radius:0 ;
+        }
+        a:hover{
+            opacity: 0.5;
         }
     }  
 }
