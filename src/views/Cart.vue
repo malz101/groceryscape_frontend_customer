@@ -4,8 +4,8 @@
             <h5>Cart</h5>
             <p>Home / Cart</p>
         </div>
-        <div class="section">
-            <div class="container">
+        <div class="section vld-parent">
+            <div v-if="!isLoading" class="container">
                 <table class="cart-table">
                     <thead>
                         <tr>
@@ -18,12 +18,15 @@
                         </tr>
                     </thead>
                     <tbody v-if="cart.length>0">
-                        {{cart[0]['photo']}}
                         <tr v-for="cartItem of cart" :key="cartItem['grocery_id']">
                             <td><img class="item-img" src="../assets/grocery.jpg"></td>
                             <td> {{cartItem['name']}} </td>
                             <td> ${{cartItem['cost_before_tax']}} </td>
-                            <td> {{cartItem['quantity']}} </td>
+                            <td> 
+                                <input v-if="isCartUpdating && (cartItem['grocery_id']!=updatingId)" type="text" :value="cartItem['quantity']" class="cart-quantity">
+                                <input v-else-if="!isCartUpdating" @change="quantityChange(cartItem['grocery_id'], cartItem['quantity'])" class="cart-quantity" type="number" :value="cartItem['quantity']" /> 
+                                <input v-else @change="quantityChange(cartItem['grocery_id'], cartItem['quantity'])" class="cart-quantity" type="number" v-model="newQuantity" /> 
+                            </td>
                             <td> ${{cartItem['cost_before_tax'] * cartItem['quantity']}} </td>
                             <td class="empty-cart"> <a @click="removeFromCart(cartItem['grocery_id'])" class="btn-small"><i class="material-icons tiny">close</i></a> </td>
                         </tr>
@@ -33,7 +36,7 @@
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td><a class="btn update-cart-btn" :class="{'disabled':true}">Update Cart</a></td>
+                            <td><a @click="updateCartQuantity" class="btn update-cart-btn" :class="{'disabled':!isCartUpdating}">Update Cart</a></td>
                         </tr>
                     </tbody>
                     <p v-else>Cart Empty</p>
@@ -56,6 +59,9 @@
                 </table>
                 <a :class="{'disabled':cart.length==0}" href="/checkout" class="btn checkout-btn">Proceed To Checkout</a>
             </div>
+            <div class="container loading">
+                <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" />
+            </div>
         </div>
     </div>
 </template>
@@ -67,22 +73,50 @@ import { mapGetters, mapActions } from 'vuex';
 export default {
     data(){
         return{
-            isCartUpdate:false,
-            api:''
+            isCartUpdating:false,
+            updatingId:'',
+            newQuantity:1,
+            api:'',
+            isLoading:true
         }
     },
     async created(){
+        this.isLoading = true;
         await this.getCart();
         this.api = config.api;
+        this.isLoading = false;
     },
     methods:{
-        ...mapActions(['getCart', 'emptyCart', 'removeItemFromCart']),
+        ...mapActions(['getCart', 'emptyCart', 'removeItemFromCart', 'updateCart']),
         async clearCart(){
             await this.emptyCart();
         },
         async removeFromCart(groceryId){
             await this.removeItemFromCart(groceryId);
         },
+        quantityChange(groceryId, amount){
+            if(!this.isCartUpdating){
+                this.isCartUpdating = true;
+                this.newQuantity = amount;
+                this.updatingId = groceryId;
+                return;
+            }
+        },
+        async updateCartQuantity(){
+            let updateCartForm = new FormData();
+            updateCartForm.set('item_id', this.updatingId);
+            updateCartForm.set('quantity', this.newQuantity);
+            let resp = await this.updateCart(updateCartForm);
+            
+            if(resp){
+                M.toast({html: 'Cart updated'});
+            }
+            else{
+                M.toast({html: 'Update failed. Please try again.'});
+            }
+            this.isCartUpdating = false;
+            return;
+        }
     },
     computed:{
         ...mapGetters(['cart'])
@@ -140,6 +174,12 @@ export default {
             opacity: 0.5;
         }
     }
+    .cart-quantity{
+        border: 1px solid var(--bg-primary);
+        padding: 8px;
+        box-sizing: border-box;
+        width: 100px;
+    }
 }
 .checkout-btn{
     background: var(--bg-primary);
@@ -167,5 +207,9 @@ export default {
     td{
         text-align: right;
     }
+}
+
+.loading{
+  height: 60px;
 }
 </style>

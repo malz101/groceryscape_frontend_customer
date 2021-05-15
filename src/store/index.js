@@ -146,22 +146,30 @@ export default new Vuex.Store({
       .then(({data, msg})=>{
         if (msg=='success'){
           commit('setCart', data['items']);
+          return true;
         }
         else if(msg=='no items found'){
           commit('setCart', []);
+          return true;
         }
         else{
           alert('An error occurred');
+          return false;
         }
       })
+      .catch(err=>{
+        return false;
+      });
     },
     getCustomer({commit, getters}){
       return authService.getCustomer(getters.token)
       .then(({data})=>{
         commit('setCustomer', data['customer']);
+        return true;
       })
       .catch((err)=>{
         console.log(err);
+        return false;
       })
     },
     addToCart({dispatch, getters}, payload){
@@ -216,6 +224,20 @@ export default new Vuex.Store({
         alert('An error occurred.'+msg);
         return false;
       })
+    },
+    updateCart({getters, dispatch}, payload){
+      return cartService.updateCart(getters.token, payload)
+      .then(({msg})=>{
+        console.log(msg);
+        if(msg=='cart updated'){
+          return dispatch('getCart');
+        }
+        return false;
+      })
+      .catch(err=>{
+        alert(err);
+        return false;
+      });
     },
     rateGrocery({getters}, payload){
       return groceriesService.rateGrocery(getters.token, payload)
