@@ -99,6 +99,19 @@ export default new Vuex.Store({
         return false;
       })
     },
+    register({dispatch}, payload){
+      return authService.register(payload)
+      .then(({msg})=>{
+        if(msg == 'account created'){
+          return dispatch('login',{'email':payload['email'], 'password':payload['password']});
+        }
+        return false;
+      })
+      .catch((err)=>{
+        alert(err);
+        return false;
+      })
+    },
     logout({commit, getters}){
       return authService.logout(getters.token)
       .then((result)=>{

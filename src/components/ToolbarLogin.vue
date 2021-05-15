@@ -7,7 +7,7 @@
                     <a href="/login" class="btn-small">Login</a>
                 </span>
                 <span class="sign-up">
-                    <a @click="signUp" class="btn-small">Register</a>
+                    <a href="/register" class="btn-small">Register</a>
                 </span>
             </div>
         </div>
@@ -19,8 +19,8 @@
                 </router-link>
                     <ul id="nav-mobile" class="right">
                         <li><router-link to="/shop">Shop</router-link></li>
-                        <li><router-link to="#" id="admin">Contact</router-link></li>
-                        <li><router-link to="/about">About Us</router-link></li>
+                        <li><router-link to="/contact">Contact</router-link></li>
+                        <li><router-link to="/about-us">About Us</router-link></li>
                     </ul>
                 </div>
             </nav>
@@ -30,13 +30,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
-export default {
-    methods:{
-        async signUp(){
-
-        }
-    },
-}
+export default {}
 </script>
 
 <style lang="scss" scoped>

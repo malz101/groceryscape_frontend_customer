@@ -4,7 +4,10 @@ import Home from '../views/Home.vue';
 import Shop from '../views/Shop';
 import About from '../views/About';
 import Cart from '../views/Cart';
+import Contact from '../views/Contact';
+import AboutUs from '../views/AboutUs';
 import Login from '../views/Login';
+import Register from '../views/Register';
 import Checkout from '../views/Checkout';
 import Item from '../views/Item';
 import store from '../store';
@@ -39,6 +42,18 @@ const routes = [
   {
     path:'/checkout',
     component: Checkout
+  },
+  {
+    path:'/contact',
+    component: Contact
+  },
+  {
+    path:'/about-us',
+    component:AboutUs
+  },
+  {
+    path:'/register',
+    component: Register
   },
   { 
     path: "*", 

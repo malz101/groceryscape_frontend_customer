@@ -148,10 +148,6 @@ export default {
 }
 
 .item{
-    --item-bg-color: rgb(250, 250, 250);
-    --cost-color: rgb(4, 175, 4);
-    --light-color: rgb(165, 165, 165);
-
     .heading{
         font-size: 12px;
         display: flex;
@@ -176,7 +172,7 @@ export default {
     }
     .item-row{
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(40%, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
         gap: 30px;
 
         .item-image{
