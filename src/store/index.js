@@ -251,7 +251,6 @@ export default new Vuex.Store({
     getOrders({commit, getters}){
       return orderService.getOrders(getters.token)
       .then(({msg, data})=>{
-        console.log(msg, data);
         if(msg == ''){
           commit('setOrders', data['orders']);
         }
@@ -305,6 +304,7 @@ export default new Vuex.Store({
       })
       .catch((err)=>{
         console.log(err);
+        return false;
       })
     },
     emptyCart({dispatch, getters}){

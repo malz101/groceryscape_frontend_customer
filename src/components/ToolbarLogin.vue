@@ -2,12 +2,16 @@
     <div class="toolbar">
         <div class="header-bar">
             <span id="brand">  <router-link to="/"><img src="../assets/default.svg" alt="" srcset=""></router-link> </span>
-            <div class="cart-login-container"> 
+             <div class="search-div">
+                <input type="search" name="search" id="search" v-model="searchString" placeholder="Search for products..." @input="search">
+                <a @click="search" class="btn search-btn">Search</a>
+            </div>
+            <div class="signup-login-container"> 
                 <span class="login">
-                    <a href="/login" class="btn-small">Login</a>
+                    <a href="/login" class="btn-small btn-flat">Login</a>
                 </span>
-                <span class="sign-up">
-                    <a href="/register" class="btn-small">Register</a>
+                <span class="signup">
+                    <a href="/register" class="btn-small btn-flat">Register</a>
                 </span>
             </div>
         </div>
@@ -25,7 +29,18 @@
 </template>
 
 <script>
-export default {}
+export default {
+    data(){
+        return{
+            searchString:''
+        }
+    },
+    methods:{
+        search(){
+            
+        }
+    },
+}
 </script>
 
 <style lang="scss" scoped>
@@ -45,14 +60,74 @@ export default {}
         color: black;
     }
   
-    .cart-login-container{
-        a{
+    .search-div{
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        a{  
+            display: flex;
+            align-items: center;
+            box-shadow: none;
+            height: 35px;
+            font-size: 12px;
+            border-radius: 0px 8px 8px 0px;
             background: var(--color-primary);
             color: #00242c;
-            // border-radius:0 ;
+            text-transform: none;
         }
         a:hover{
-            opacity: 0.5;
+            opacity: 0.9;
+        }
+
+        a:focus{
+            border: 1px solid grey;
+        }
+
+        input[type=search]{
+            width: 400px;
+            font-size: 12px;
+            padding: 16px;
+            border-radius:8px 0px 0px 8px ;
+            box-sizing: border-box;
+            border: 1px solid grey;
+            height: 35px;
+        }
+        input[type=search]:focus{
+            border: 1px solid var(--color-primary);
+        }
+        input::placeholder{
+            color: var(--light-color);
+        }
+    }
+
+    .signup-login-container{
+        display: flex;
+        align-items: center;
+        .login, .signup{
+            display: flex;
+            align-items: center;
+            a{
+                display: flex;
+                text-transform: none;
+                align-items: center;
+                justify-content: center;
+                color: #fff;
+                height: 30px;
+                border: 1px solid var(--color-primary);
+            }
+            a:hover{
+                opacity: 0.9;
+                background: var(--color-primary);
+                color: var(--bg-primary);
+            }
+        }
+
+        .login a{
+            border-radius: 8px 0 0 8px;
+        }
+        .signup a{
+            border-radius: 0px 8px 8px 0px;
+            border-left: none;
         }
     }  
 }

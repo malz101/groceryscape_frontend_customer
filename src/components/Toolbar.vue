@@ -2,18 +2,16 @@
     <div class="toolbar">
         <div class="header-bar">
             <span id="brand">  <router-link to="/"><img src="../assets/default.svg" alt="" srcset=""></router-link> </span>
-            <div class="container">
-                <div class="search-div">
-                    <input type="search" name="search" id="search" v-model="searchString" placeholder="Enter Search Here..." @input="search">
-                    <a @click="search" class="btn search-btn">Search</a>
-                </div>
+            <div class="search-div">
+                <input type="search" name="search" id="search" v-model="searchString" placeholder="Search for products..." @input="search">
+                <a @click="search" class="btn search-btn">Search</a>
             </div>
             <div class="cart-logout-container">
                 <span class="cart">
-                    <a href="/cart" :data-content="cartAmount" id="cart-badge" class="btn-small"><i class="material-icons tiny">add_shopping_cart</i></a>
+                    <a href="/cart" :data-content="cartAmount" id="cart-badge" class="btn-small btn-flat"><i class="material-icons tiny">add_shopping_cart</i>{{customer['first_name']}}'s Cart</a>
                 </span>
                 <span class="logout">
-                    <a @click="signOut" class="btn-small"><i class="material-icons tiny">exit_to_app</i></a>
+                    <a @click="signOut" class="btn-small btn-flat"><i class="material-icons tiny">exit_to_app</i>Logout</a>
                 </span>
             </div>
         </div>
@@ -21,7 +19,7 @@
             <div class="toolbar">
                 <router-link to="/"><span>Home</span></router-link>
                 <router-link to="/shop">Shop</router-link>
-                <router-link to="/order-history">Order History</router-link>
+                <router-link to="/order-history">Dashboard</router-link>
                 <router-link to="/contact">Contact</router-link>
                 <router-link to="/about-us">About Us</router-link>
             </div>
@@ -37,8 +35,11 @@ export default {
             searchString:''
         }
     },
+    async created(){
+        await this.getCustomer();
+    },
     methods:{
-        ...mapActions(['logout']),
+        ...mapActions(['logout', 'getCustomer']),
         async signOut(){
             await this.logout();
             this.$router.push('/login');
@@ -48,7 +49,7 @@ export default {
         }
     },
     computed:{
-        ...mapGetters(['cartAmount'])
+        ...mapGetters(['cartAmount', 'customer'])
     }
 }
 </script>
@@ -71,17 +72,18 @@ export default {
     }
 
     .search-div{
-        display: flex;
+        display: inline-flex;
         align-items: flex-start;
-        justify-content: center;
         a{  
             display: flex;
             align-items: center;
             box-shadow: none;
             height: 35px;
+            font-size: 12px;
+            border-radius: 0px 8px 8px 0px;
             background: var(--color-primary);
             color: #00242c;
-            border-radius: 0;
+            text-transform: none;
         }
         a:hover{
             opacity: 0.9;
@@ -93,14 +95,19 @@ export default {
 
         input[type=search]{
             width: 400px;
-            background: white;
+            font-size: 12px;
             padding: 16px;
+            border-radius:8px 0px 0px 8px ;
             box-sizing: border-box;
-            border: 1px solid grey;
+            border: 1px solid #555;
             height: 35px;
+            margin-bottom: 0px;
         }
         input[type=search]:focus{
             border: 1px solid var(--color-primary);
+        }
+        input::placeholder{
+            color: var(--light-color);
         }
     }
     
@@ -111,27 +118,28 @@ export default {
         .cart, .logout{
             display: flex;
             align-items: center;
-            font-weight: bold;
-            color: white;
             a{
-                margin-right: 8px;
-                background: white;
-                height: 40px;
-                width: 40px;
-                border-radius: 50%;
                 display: flex;
+                text-transform: none;
                 align-items: center;
                 justify-content: center;
-                i{
-                    color: #000;
-                }
+                color: #fff;
+                height: 30px;
+                border: 1px solid var(--color-primary);
             }
             a:hover{
+                opacity: 0.9;
                 background: var(--color-primary);
-                i{
-                    color: var(--bg-primary);
-                }
+                color: var(--bg-primary);
             }
+        }
+
+        .cart a{
+            border-radius: 8px 0 0 8px;
+        }
+        .logout a{
+            border-radius: 0px 8px 8px 0px;
+            border-left: none;
         }
         .cart{
             position: relative;

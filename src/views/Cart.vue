@@ -6,7 +6,7 @@
         </div>
         <div class="section vld-parent">
             <div v-if="!isLoading" class="container">
-                <table class="cart-table">
+                <table v-if="cart.length>0" class="cart-table">
                     <thead>
                         <tr>
                             <th></th>
@@ -17,7 +17,7 @@
                             <th class="empty-cart"> <a @click="clearCart" :class="{'disabled':cart.length==0}" class="btn-small"><i class="material-icons tiny">delete</i></a> </th>
                         </tr>
                     </thead>
-                    <tbody v-if="cart.length>0">
+                    <tbody>
                         <tr v-for="cartItem of cart" :key="cartItem['grocery_id']">
                             <td><img class="item-img" :src="`${api}/uploads/${cartItem['photo']}`" alt="Cart item image"></td>
                             <td> {{cartItem['name']}} </td>
@@ -39,8 +39,12 @@
                             <td><a @click="updateCartQuantity" class="btn update-cart-btn" :class="{'disabled':!isCartUpdating}">Update Cart</a></td>
                         </tr>
                     </tbody>
-                    <p v-else>Cart Empty</p>
+                    
                 </table>
+                <p class="empty-cart-p" v-else>
+                    <span>Cart Empty</span>
+                    <img src="../assets/shopping-cart.svg" alt="Grocery Cart">
+                </p>
                 <table class="totals-table">
                     <tbody>
                         <tr>
@@ -148,10 +152,23 @@ export default {
     font-size: 10px;
   }
 }
+
+.section{
+    background:var(--color-accent);
+}
 .cart-table{
     margin-bottom: 16px;
     td:nth-child(1), th:nth-child(1){
         width: 150px;
+    }
+    .empty-cart{
+        display: flex;
+        flex-direction: column;
+
+        span{
+            font-size:2em ;
+            font-weight: bold;
+        }
     }
     th{
         padding-left: 0;
@@ -166,18 +183,6 @@ export default {
         width: 50px;
         height: 50px;
     }
-    .empty-cart{
-        .btn-small{
-            background: var(--bg-primary);
-            border-radius: 50%;
-            padding-right: 0.5em;
-            padding-left: 0.5em;
-            box-shadow: none;
-        }   
-        .btn-small:hover{
-            opacity: 0.5;
-        }
-    }
     .cart-quantity{
         border: 1px solid var(--bg-primary);
         padding: 8px;
@@ -185,6 +190,23 @@ export default {
         width: 100px;
     }
 }
+
+.empty-cart-p{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    span{
+        font-size:1.4em ;
+        font-weight: bold;
+    }
+    img{
+        width: 100px;
+        height: 100px;
+        color: green;
+    }
+}
+
 .checkout-btn{
     background: var(--bg-primary);
     padding-right: 2.5em;

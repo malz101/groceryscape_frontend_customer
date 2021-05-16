@@ -230,7 +230,13 @@ export default {
         const form = new FormData();
         form.set('item_id', id);
         form.set('quantity', 1)
-        await this.addToCart(form);
+        let resp = await this.addToCart(form);
+        if(resp){
+            M.toast({html: 'Added to cart!'});
+        }
+        else{
+            M.toast({html: 'An error occurred. Please try again.'});
+        }
       }
       else{
         var notLoggedInModal = document.querySelector('#not-logged-in-modal');
