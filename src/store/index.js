@@ -209,14 +209,15 @@ export default new Vuex.Store({
         alert('An error occurred.'+msg);
       })
     },
-    checkoutCart({dispatch, getters}){
-      return cartService.checkoutCart(getters.token)
+    createOrder({dispatch, getters}){
+      return cartService.createOrder(getters.token)
       .then(async ({msg, data})=>{
         if(msg == 'success'){
           await dispatch('emptyCart');
           return data;
         }
         else{
+          alert(msg);
           return false;
         }
       })

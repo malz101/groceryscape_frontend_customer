@@ -11,25 +11,20 @@
                 </span>
             </div>
         </div>
-        <div class="container">
-            <nav class="nav-wrapper">
-                <div class="toolbar">
-                <router-link to="/" class="brand-logo left right-padding"> 
+        <nav class="nav-wrapper">
+            <div class="toolbar">
+                <router-link to="/"> 
                     <span>Home</span>
                 </router-link>
-                    <ul id="nav-mobile" class="right">
-                        <li><router-link to="/shop">Shop</router-link></li>
-                        <li><router-link to="/contact">Contact</router-link></li>
-                        <li><router-link to="/about-us">About Us</router-link></li>
-                    </ul>
-                </div>
-            </nav>
-        </div>
+                <router-link to="/shop">Shop</router-link>
+                <router-link to="/contact">Contact</router-link>
+                <router-link to="/about-us">About Us</router-link>
+            </div>
+        </nav>
     </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex';
 export default {}
 </script>
 
@@ -63,14 +58,28 @@ export default {}
 }
 
 nav {
-  background: white;
-  box-shadow: none;
-  height: 40px;
-  a{
-      color: black;
-      font-size: 16px;
-      line-height: 40px;
-  }
+    background: white;
+    box-shadow: none;
+    border-bottom: 1px solid #eee;
+    box-shadow: 0 2px 8px 3px #eee;
+    .toolbar{
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    a{   
+        width: fit-content;
+        padding: 0 1.2em ;
+        color: black;
+        font-size: 14px;
+        text-align: center;
+    }
+    a:hover{
+        background: var(--bg-primary);
+        color: #fff;
+    }
 }
+
+
 
 </style>

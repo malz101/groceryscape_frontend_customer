@@ -41,6 +41,10 @@
                             <input type="text" name="last_name" id="last_name" v-model="lastName" required>
                         </div>
                         <div>
+                            <label for="street">Street</label>
+                            <input type="text" name="street" id="street" v-model="street" required>
+                        </div>
+                        <div>
                             <label for="town">Town</label>
                             <input type="text" name="town" id="town" v-model="town" required>
                         </div>
@@ -58,7 +62,7 @@
                         </div>
                         <div>
                             <label for="deliveryDate">Delivery date: </label>
-                            <date-picker v-model="deliveryDate"></date-picker>
+                            <date-picker type="date" v-model="deliveryDate"></date-picker>
                         </div>
                         <div>
                             <select class="browser-default" name="deliveryTime" id="deliveryTime">
@@ -152,6 +156,7 @@ export default {
             parish:'',
             phone:'',
             email:'',
+            street:'',
             deliveryTime:'',
             deliveryDate:null,
             notes:'',
@@ -172,6 +177,7 @@ export default {
         this.phone = this.customer['telephone'];
         this.parish = this.customer['parish'];
         this.town = this.customer['town'];
+        this.street = this.customer['street'];
         this.country = 'Jamaica';
 
         await this.getPublicKey();
@@ -183,16 +189,26 @@ export default {
         M.Modal.init(elems);
     },
     methods:{
-        ...mapActions(['getCart', 'getCustomer', 'checkoutCart', 'getPublicKey', 'makePayment', 'setDeliveryLocation','scheduleOrder']),
+        ...mapActions(['getCart', 'getCustomer', 'createOrder', 'getPublicKey', 'makePayment', 'setDeliveryLocation','scheduleOrder']),
         async placeOrder(){
             
             /**
              * Regardless of the type of payment that the user chose this steps will always be taken when checking out a user
              * The checkout action will create an order and return its id to be used to schedule the order by setting the delivery
-             * date and time. The id will also be used to set the delivery location
+             * date and time. The id will also be used to set the delivery location.s
              */
             try{
-                let resp = await this.checkoutCart();
+                if(this.street == ''){
+                    M.toast({html: 'Enter street name'});
+                    return;
+                }
+
+                if(this.deliveryDate == ''){
+                    M.toast({html: 'Set delivery date'});
+                    return;
+                }
+
+                let resp = await this.createOrder();
                 if(!resp){
                     M.toast({html: 'An error occurred. Please try again.'});
                     return;
@@ -203,12 +219,15 @@ export default {
                 let deliveryForm = new FormData();
                 deliveryForm.set('parish', this.parish);
                 deliveryForm.set('town', this.town);
+                deliveryForm.set('street', this.street);
 
                 await this.setDeliveryLocation({'orderId': orderId, 'body': deliveryForm});
 
                 let scheduleForm = new FormData();
                 scheduleForm.set('order_id', orderId);
-                scheduleForm.set('date', this.deliveryDate);
+                scheduleForm.set('date', '2021-11-12');
+                scheduleForm.set('timeslot', 2);
+                console.log(this.deliveryDate);
 
                 await this.scheduleOrder(scheduleForm);
 

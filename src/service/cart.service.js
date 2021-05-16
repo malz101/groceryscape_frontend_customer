@@ -68,9 +68,9 @@ export default{
             }
         });
     },
-    async checkoutCart(token){
+    async createOrder(token){
         return new Promise(async(resolve, reject)=>{
-            const resp = await axios.get(`${config.api}/manage_cart/CheckOutCart`, {
+            const resp = await axios.get(`${config.api}/manage_customer_account/create_order`, {
                 headers:{
                     Authorization: `Bearer ${token}`,
                 }

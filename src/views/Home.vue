@@ -19,10 +19,38 @@
             <a @click="search" class="btn search-btn">Search</a>
         </div>
     </div>
+
+    <div class="section">
+      <div class="container">
+        <div class="categories-grid">
+          <div class="categories">
+            <span class="categories-title">Product Categories</span>
+            <ul class="categories-list">
+                <!-- <li v-for="category of Object.keys(categories)" :key="category"><a :class="{'active':category==activeCategoryName}" @click="showCategory(category)"> {{category}} </a></li> -->
+                <li v-for="category of Object.keys(categories).sort().slice(0,9)" :key="category">
+                  <img :src="`${api}/uploads/${categories[category][0]['photo']}`" alt="Grocery Image">
+                  <span>{{category}}</span>
+                  <strong>{{categories[category].length}}</strong>
+                </li>
+            </ul>
+          </div>
+          <div class="slider">
+            <ul class="slides">
+              <li>
+                <img src="../assets/breakfast1.jpg">
+              </li>
+              <li>
+                <img src="../assets/breakfast2.jpg">
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
     
     <div class="section vld-parent">
       <div v-if="localCategories!={} && !isLoading">
-        <div class="container" v-for="category of Object.keys(localCategories).sort()" :key="category">
+        <div class="container" v-for="category of Object.keys(localCategories).sort().slice(0,2)" :key="category">
           <h6>{{category}}</h6>
           <div class="grid">
             <div class="card" v-for="grocery of localCategories[category].slice(0, 8)" :key="grocery.id">
@@ -31,11 +59,12 @@
               </div>
               <div class="card-content">
                 <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name}}</a> </span>
-                <p>${{grocery['cost_per_unit']}}</p>
+                <p class="units"> <i class="material-icons tiny" :class="{'in-stock':grocery['quantity']>0, 'out-of-stock':grocery['quantity']==0}">check_circle</i> <b>In stock</b>- 1 {{grocery['units']}}</p>
+                <p class="price">${{grocery['cost_per_unit']}}</p>
               </div>
               <div class="card-action">
-                <a v-if="!(idsInCart.includes(grocery.id))" @click="addItemToCart(grocery.id)" class="add-to-cart-btn btn-small btn-flat">Add to Cart</a>
-                <a v-else href="/cart" class="add-to-cart-btn btn-small btn-flat">View Cart</a>
+                <a v-if="!(idsInCart.includes(grocery.id))" @click="addItemToCart(grocery['id'])" class="btn-small add-to-cart-btn"> <i class="material-icons tiny">add_shopping_cart</i> Add to Cart</a>
+                <a v-else :href="'/item/'+grocery.id" class="btn-small add-to-cart-btn"> <i class="material-icons tiny">shopping_cart</i> Read more</a>
                 <star-rating :clearable="true" :rating="0" :show-rating="false" :star-size="14" :animate="true" @rating-selected ="setRating($event, grocery.id)"></star-rating> 
               </div>
             </div>
@@ -48,8 +77,10 @@
         </div>
       </div>
     </div>
-
     <div class="section">
+      <div class="container" style="text-align: center;"><a href="/shop" class="btn show-more-btn">Show More</a></div>
+    </div>
+    <div class="section quality-section">
       <div class="quality-row">
         <div class="card">
           <div class="card-content">
@@ -115,7 +146,10 @@ export default {
   },
   mounted(){
     var elems = document.querySelectorAll('.modal');
-    var instances = M.Modal.init(elems);
+    M.Modal.init(elems);
+
+    var elems = document.querySelectorAll('.slider');
+    M.Slider.init(elems,{duration: 3000, interval:5000});  
   },
   methods:{
     ...mapActions(['getGroceries', 'addToCart', 'getCart', 'rateGrocery']),
@@ -178,6 +212,10 @@ export default {
   background: var(--bg-primary);
 }
 
+.home{
+  background: var(--color-accent);
+}
+
 .search-div{
   display: flex;
   align-items: flex-start;
@@ -212,6 +250,67 @@ export default {
   }
 }  
 
+.categories-grid{
+  display: grid;
+  gap: 20px 40px;
+  grid-template-columns: repeat(6, auto);
+
+  @media screen and (max-width:900px) {
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    .categories, .slider{
+      justify-content: center;
+    }
+  }
+
+  .categories{
+    grid-column: 1;
+
+    .categories-title{
+      background: var(--bg-primary);
+      color: #fff;
+      display: block;
+      padding: 1em 2em;
+    }
+    .categories-list{
+      margin-top: 0;
+      li{
+        font-size: 0.8em;
+        padding: 0.7em 2em;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      img{
+        width: 25px;
+        height: 25px;
+      }
+      span{
+        display: inline-block;
+      }
+      strong{
+        margin-left: auto;
+        padding: 3px;
+        border-radius: 3px;
+        background: var(--color-accent);
+      }
+      li:hover{
+        background: var(--color-accent);
+        cursor: pointer;
+        border-left: 2px solid var(--color-primary);
+        strong{
+          background: var(--bg-primary);
+          color: #fff;
+        }
+      }
+    }
+  }
+  .slider{  
+    grid-column: span 5;
+    min-width: 400px;
+  }
+}
+
 .grid{
   display: grid;
   grid-template-columns: repeat(auto-fill, 200px);
@@ -224,23 +323,37 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    border-radius: 4px;
+    box-shadow: 0px 0px 8px 2px #eee;
     .card-image{
       width: 170px;
       height: 100px;
       img{
         height: 100px;
       }
-      img:hover{
-        transform: scale(1.1);
-      }
     }
     .card-content{
       text-align: center;
       padding:16px 0px 0px 0px;
-      p{
+      .units{
+        font-size: 10px;
+        color: var(--light-color);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        justify-content: center;
+      }
+      .in-stock{
+        color: green;
+      }
+      .out-of-stock{
+        color: red;
+      }
+      .price{
         font-weight: bold;
         max-height: 80px;
-        font-size: 10px;
+        margin: 4px 0px;
+        font-size: 12px;
         overflow: hidden;
       }
     }
@@ -252,10 +365,10 @@ export default {
       white-space: nowrap;
       overflow: hidden;
       a{
-        color: orange;
+        color: green;
         text-align: center;
         font-size: 12px;
-        font-weight: bold;
+        font-weight: 800;
       }
       a:hover{
         text-decoration: underline;
@@ -269,19 +382,45 @@ export default {
       padding-top:8px;
       padding-bottom: 8px;
       .add-to-cart-btn{
-        color: orange;
+        margin-bottom: 8px;
+        display: flex;
+        height: 26px;
+        align-items: center;
+        color: white;
+        background: green;
         font-size: 0.8em;
+        padding-top: 0;
+        padding-bottom: 0;
+        text-transform: none;
       }
       .add-to-cart-btn:hover{
-        background: orange;
-        color: white;
+        background: var(--bg-primary);
       }
     }
   }
 }
 
+.card:hover{
+  img{
+    transform: scale(1.1);
+  }
+}
+
 .loading{
   height: 60px;
+}
+
+.quality-section{
+  background: #fff;
+}
+
+.show-more-btn{
+  padding: 1em 2em;
+  background: green;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  text-transform: none;
 }
 
 .quality-row{
