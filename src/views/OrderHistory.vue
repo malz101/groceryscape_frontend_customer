@@ -1,6 +1,6 @@
 <template>
     <div class="order-history">
-        {{orders}}
+        {{orders[0]}}
     </div>
 </template>
 
@@ -10,11 +10,12 @@ export default {
     async created(){
         await this.getOrders();
     },
+    computed:{
+        ...mapGetters(['orders'])
+    },
     methods:{
         ...mapActions(['getOrders'])
     },
-    computed:{
-        ...mapGetters(['orders'])
-    }
+    
 }
 </script>

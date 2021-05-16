@@ -14,9 +14,11 @@ export default new Vuex.Store({
     isLoggedIn: sessionStorage.getItem('user_id') || '',
     token: sessionStorage.getItem('token') || '',
     groceries:[],
-    recommendedGroceries:'',
+    recommendedGroceries:[],
     categories:{},
+    featuredItems:[],
     customer:{},
+    orderPreview:{},
     cart:[],
     orders:[],
     timeslots:[],
@@ -55,6 +57,9 @@ export default new Vuex.Store({
     recommendedGroceries(state){
       return state.recommendedGroceries;
     },
+    featuredItems(state){
+      return state.featuredItems;
+    },
     categories(state){
       return state.categories;
     },
@@ -72,6 +77,9 @@ export default new Vuex.Store({
     },
     timeslots(state){
       return state.timeslots;
+    },
+    orderPreview(state){
+      return state.orderPreview;
     }
   },
   mutations: {
@@ -89,13 +97,16 @@ export default new Vuex.Store({
     setRecommendedGroceries(state, groceries){
       state.recommendedGroceries = groceries;
     },
+    setFeaturedItems(state, featuredItems){
+      state.featuredItems = featuredItems;
+    },
     setCategories(state, categories){
       state.categories = categories;
     },
     setCart(state, cart){
       state.cart = cart;
     },
-    setOrders(state){
+    setOrders(state, orders){
       state.orders = orders;
     },
     setCustomer(state, customer){
@@ -106,6 +117,9 @@ export default new Vuex.Store({
     },
     setTimeslots(state, timeslots){
       state.timeslots = timeslots;
+    },
+    setOrderPreview(state, orderPreview){
+      state.orderPreview = orderPreview;
     }
   },  
   actions: {
@@ -183,6 +197,26 @@ export default new Vuex.Store({
         return false;
       });
     },
+    getFeaturedItems({commit}){
+      return recommendService.getFeaturedItems()
+      .then(({data, msg})=>{
+        if (msg=='success'){
+          commit('setFeaturedItems', data['groceries']);
+          return true;
+        }
+        else if(msg=='request failed'){
+          commit('setFeaturedItems', []);
+          return true;
+        }
+        else{
+          alert('An error occurred');
+          return false;
+        }
+      })
+      .catch(err=>{
+        return false;
+      });
+    },
     getCart({commit, getters}){
       return cartService.getCart(getters.token)
       .then(({data, msg})=>{
@@ -217,13 +251,30 @@ export default new Vuex.Store({
     getOrders({commit, getters}){
       return orderService.getOrders(getters.token)
       .then(({msg, data})=>{
-        // if(msg == 'success'){
-        //   commit('setOrders', data['orders']);
-        // }
-        // else{
-        //   commit('setOrders', []);
-        // }
-        console.log(data);
+        console.log(msg, data);
+        if(msg == ''){
+          commit('setOrders', data['orders']);
+        }
+        else{
+          commit('setOrders', []);
+        }
+      })
+      .catch(err=>{
+        alert(err);
+        return false;
+      })
+    },
+    getOrderPreview({commit, getters}, payload){
+      return orderService.getOrderPreview(getters.token, payload)
+      .then(({msg, data})=>{
+        if(msg == 'success'){
+          commit('setOrderPreview', data['order']);
+          return true;
+        }
+        else{
+          commit('setOrderPreview', {});
+          return true;
+        }
       })
       .catch(err=>{
         alert(err);
@@ -245,7 +296,7 @@ export default new Vuex.Store({
       .catch(err=>{
         alert(err);
         return false;
-      })
+      });
     },
     addToCart({dispatch, getters}, payload){
       return cartService.addToCart(getters.token, payload)

@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <div class="section">      
+    <div class="section vld-parent">      
         <div class="container billing-container">
             <h6>Billing Information</h6>
             <div class="billing-grid">
@@ -79,9 +79,10 @@
                     <textarea name="notes" id="notes" v-model="notes" placeholder="Notes about your order, e.g. special notes for delivery."></textarea>
                 </div>
             </div>
+            <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" :color="'#080'" />
         </div>
     </div>
-    <div class="section">
+    <div class="section vld-parent">
         <div class="container order-container">
             <h5>Your Order</h5>
             <table>
@@ -127,7 +128,7 @@
             </div>
             
             <div class="section stripe-card">
-                <loading :active.sync="isLoading" />
+                <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" :color="'#080'" />
                 <div id="card-element"></div>
             </div>
             <a @click="placeOrder" class="btn primary-bg-color">Place Order</a>
@@ -194,10 +195,10 @@ export default {
         M.Modal.init(elems);
     },
     computed:{
-        ...mapGetters(['cart', 'customer', 'stripeKey', 'timeslots'])
+        ...mapGetters(['cart', 'customer', 'stripeKey', 'timeslots', 'orderPreview'])
     },
     methods:{
-        ...mapActions(['getCart', 'getCustomer', 'createOrder', 'getPublicKey', 'makePayment', 'setDeliveryLocation','scheduleOrder', 'getDeliveryTimeslots']),
+        ...mapActions(['getCart', 'getCustomer', 'createOrder', 'getPublicKey', 'makePayment', 'setDeliveryLocation','scheduleOrder', 'getDeliveryTimeslots', 'getOrderPreview']),
         async placeOrder(){
             
             /**

@@ -51,6 +51,22 @@ export default {
             }
         });
     },
+    async getOrderPreview(token, body){
+        return new Promise(async function(resolve, reject){ 
+            const resp = await axios.get(`${config.api}/manage_customer_account/get_order_preview`,body, {
+                headers:{
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (resp.status == HTTP_STATUS_OK){
+                return resolve(resp.data);
+            }
+            else{
+                reject(resp.data);
+            }
+        });
+    },
     async scheduleOrder(token, body){
         return new Promise(async function(resolve, reject){
             const resp = await axios.post(`${config.api}/manage_order/schedule_order`,body, {
@@ -67,7 +83,7 @@ export default {
             }
         });
     },
-    setDeliveryLocation(token, orderId, body){
+    async setDeliveryLocation(token, orderId, body){
         return new Promise(async function(resolve, reject){
             const resp = await axios.post(`${config.api}/manage_customer_account/set_delivery_location/${orderId}`,body, {
                 headers:{

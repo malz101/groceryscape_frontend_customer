@@ -19,7 +19,7 @@
                     </thead>
                     <tbody v-if="cart.length>0">
                         <tr v-for="cartItem of cart" :key="cartItem['grocery_id']">
-                            <td><img class="item-img" src="../assets/grocery.jpg"></td>
+                            <td><img class="item-img" :src="`${api}/uploads/${cartItem['photo']}`" alt="Cart item image"></td>
                             <td> {{cartItem['name']}} </td>
                             <td> ${{cartItem['cost_before_tax']}} </td>
                             <td> 
@@ -101,6 +101,9 @@ export default {
                 this.updatingId = groceryId;
                 return;
             }
+            if(this.newQuantity<0){
+                this.newQuantity = 0;
+            }
         },
         async updateCartQuantity(){
             let updateCartForm = new FormData();
@@ -160,7 +163,8 @@ export default {
         text-align: center;
     }
     .item-img{
-        width: 100px;
+        width: 50px;
+        height: 50px;
     }
     .empty-cart{
         .btn-small{

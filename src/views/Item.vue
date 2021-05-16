@@ -178,6 +178,8 @@ export default {
         .item-image{
             display: flex;
             border-radius: 10px;
+            align-items: center;
+            justify-content: center;
             background: #fff;
             img{
                 max-width: 100%;

@@ -23,15 +23,43 @@
         <div class="product-section section">
             <div class="container">
                 <div class="grid">
-                    <div class="categories vld-parent">
-                        <span class="categories-title">Product Categories</span>
-                        <ul v-if="!isLoading" class="categories-list">
-                            <li v-for="category of Object.keys(categories).sort()" :key="category"><a :class="{'active':category==activeCategoryName}" @click="showCategory(category)"> {{category}} </a></li>
-                        </ul>
-                        <div v-else class="container loading">
-                            <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" />
+                    <div class="items">
+                        <div class="categories vld-parent">
+                            <span class="categories-title">Product Categories</span>
+                            <ul v-if="!isLoading" class="categories-list">
+                                <li v-for="category of Object.keys(categories).sort()" :key="category">
+                                    <img :src="`${api}/uploads/${categories[category][0]['photo']}`" alt="Grocery Image">
+                                    <a :class="{'active':category==activeCategoryName}" @click="showCategory(category)"> {{category}} </a>
+                                </li>
+                            </ul>
+                            <div v-else class="container loading">
+                                <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" :color="'#080'" />
+                            </div>
+                        </div>
+                        <div class="suggestions vld-parent">
+                            <span v-if="isLoading" class="suggestions-title">Top products<span class="new badge" data-badge-caption="">You may like</span></span> 
+                            <span v-else-if="!isLoading && !isLoggedIn" class="suggestions-title">Top products<span class="new badge" data-badge-caption="">You may like</span></span> 
+                            <span v-else-if="!isLoading && isLoggedIn && orders.length>0" class="suggestions-title">Since you bought {{orders[0]['order_items'][0]['name']}}</span> 
+                            <span v-else class="suggestions-title">Suggested for you<span class="new badge" data-badge-caption="">You may like</span></span> 
+                            <div v-if="isLoading" class="container loading">
+                                <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" :color="'#080'" />
+                            </div>
+                            <ul v-else-if="!isLoading && !isLoggedIn" class="suggestions-list">
+                                <li v-for="grocery of featuredItems" :key="grocery['id']">
+                                    <img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image">
+                                    <a> {{grocery['name']}} </a>
+                                </li>
+                            </ul>
+                            
+                            <ul v-else class="suggestions-list">
+                                <li v-for="grocery of topPicks" :key="grocery['id']">
+                                    <img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image">
+                                    <a> {{grocery['name']}} </a>
+                                </li>
+                            </ul>
                         </div>
                     </div>
+                    
                     <div class="product vld-parent">
                         <div class="product-title">
                             <img src="../assets/default.svg" alt="GroceryScape">
@@ -56,7 +84,7 @@
                             </div>
                         </div>
                         <div v-else class="container loading">
-                            <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" />
+                            <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" :color="'#080'" />
                         </div>
                     </div>
                 </div>
@@ -76,14 +104,28 @@ export default {
             activeCategory:[],
             activeCategoryName:'',
             api:'',
-            isLoading:false
+            isLoading:false,
+            topPicks:[]
         }
     },
     async created(){
         this.isLoading = true;
         await this.getGroceries();
+        await this.getFeaturedItems();
         if(this.isLoggedIn){
             await this.getCart();
+            await this.getRecommendedGroceries();
+            await this.getOrders();
+            if(this.orders.length>0){
+                for(let grocery of this.recommendedGroceries){
+                    if(this.topPicks.length>10){
+                        break;
+                    }
+                    if(grocery['category']==this.orders[0]['order_items'][0]['category']){
+                        this.topPicks.push(grocery);
+                    }
+                }
+            }
         }
         this.api = config.api;
         [this.activeCategoryName, this.activeCategory] = Object.entries(this.categories).sort()[0];
@@ -93,8 +135,11 @@ export default {
         var elems = document.querySelectorAll('.modal');
         M.Modal.init(elems);    
     },
+    computed:{
+        ...mapGetters(['groceries', 'isLoggedIn', 'categories', 'idsInCart', 'recommendedGroceries', 'featuredItems', 'orders']),
+    },
     methods:{
-        ...mapActions(['getGroceries', 'getCart', 'addToCart', 'rateGrocery']),
+        ...mapActions(['getGroceries', 'getCart', 'addToCart', 'rateGrocery', 'getRecommendedGroceries', 'getFeaturedItems', 'getOrders']),
         showCategory(category){
             this.activeCategoryName = category;
             this.activeCategory = this.categories[category];
@@ -128,9 +173,6 @@ export default {
             }
         }
     },
-    computed:{
-        ...mapGetters(['groceries', 'isLoggedIn', 'categories', 'idsInCart']),
-    }
 }
 </script>
 
@@ -175,10 +217,15 @@ export default {
         grid-template-columns: 150px repeat(6, auto);       
         gap: 16px;
 
-        .categories{
+        .items{
             grid-column: 1 / span 2;
+        }
+
+        .categories{
+            margin-bottom: 16px;
             background: white;
             height: fit-content;
+            border: 1px solid #eee;
             .categories-title{
                 background: var(--bg-primary);
                 color: #fff;
@@ -197,6 +244,57 @@ export default {
                     align-items: center;
                     gap: 10px;
                     border-bottom: 1px solid #eee;
+                }
+                img{
+                    width: 25px;
+                    height: 25px;
+                }
+                a{
+                    color: gray;
+                    font-size: 12px;
+                    cursor: pointer;
+                }
+                a.active{
+                    color: green;
+                    font-weight: bold;
+                    text-decoration: underline;
+                }
+                a:hover{
+                    color: var(--bg-primary);
+                    text-decoration: underline;
+                }
+            }
+        }
+
+        .suggestions{
+            background: white;
+            height: fit-content;
+            border: 1px solid #eee;
+            .suggestions-title{
+                background: var(--bg-primary);
+                color: #fff;
+                display: block;
+                padding: 1em 1em;
+                font-size: 12px;
+                .badge{
+                    background: green;
+                }
+            }
+            
+            .suggestions-list{
+                margin-top: 0;
+                li{
+                    font-size: 0.8em;
+                    padding: 0.3em 1em;
+                    background: #fff;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    border-bottom: 1px solid #eee;
+                }
+                img{
+                    width: 25px;
+                    height: 25px;
                 }
                 a{
                     color: gray;
@@ -247,6 +345,8 @@ export default {
                 .card{
                     padding: 8px;
                     width: 100%;
+                    box-shadow: none;
+                    border: 1px solid #eee;
                     .card-content{
                         padding:8px 0px 0px 0px;
                         .card-title{
