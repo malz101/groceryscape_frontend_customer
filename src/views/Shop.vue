@@ -23,18 +23,21 @@
         <div class="product-section section">
             <div class="container">
                 <div class="grid">
-                    <div class="categories">
+                    <div class="categories vld-parent">
                         <span class="categories-title">Product Categories</span>
-                        <ul class="categories-list">
+                        <ul v-if="!isLoading" class="categories-list">
                             <li v-for="category of Object.keys(categories).sort()" :key="category"><a :class="{'active':category==activeCategoryName}" @click="showCategory(category)"> {{category}} </a></li>
                         </ul>
+                        <div v-else class="container loading">
+                            <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" />
+                        </div>
                     </div>
-                    <div class="product">
+                    <div class="product vld-parent">
                         <div class="product-title">
                             <img src="../assets/default.svg" alt="GroceryScape">
                             <span>Quality & Freshness Guaranteed! Good Health.</span>
                         </div>
-                        <div class="product-grid">
+                        <div v-if="!isLoading" class="product-grid">
                             <div class="card horizontal" v-for="grocery of activeCategory" :key="grocery.id">
                                 <div class="card-image">
                                     <a :href="'/item/'+grocery.id"><img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image"></a>
@@ -51,6 +54,9 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div v-else class="container loading">
+                            <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" />
                         </div>
                     </div>
                 </div>
@@ -69,21 +75,23 @@ export default {
         return{
             activeCategory:[],
             activeCategoryName:'',
-            api:''
+            api:'',
+            isLoading:false
         }
     },
     async created(){
+        this.isLoading = true;
         await this.getGroceries();
         if(this.isLoggedIn){
             await this.getCart();
         }
         this.api = config.api;
-        [this.activeCategoryName, this.activeCategory] = Object.entries(this.categories)[0];
-        
+        [this.activeCategoryName, this.activeCategory] = Object.entries(this.categories).sort()[0];
+        this.isLoading = false;
     },
     mounted(){
         var elems = document.querySelectorAll('.modal');
-        var instances = M.Modal.init(elems);    
+        M.Modal.init(elems);    
     },
     methods:{
         ...mapActions(['getGroceries', 'getCart', 'addToCart', 'rateGrocery']),
@@ -329,6 +337,10 @@ export default {
             }
         }
     }
+}
+
+.loading{
+  height: 60px;
 }
 
 </style>

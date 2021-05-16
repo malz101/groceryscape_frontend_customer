@@ -61,20 +61,15 @@
                             <input type="text" name="email" id="email" v-model="email" required>
                         </div>
                         <div>
-                            <label for="deliveryDate">Delivery date: </label>
-                            <date-picker type="date" v-model="deliveryDate"></date-picker>
+                            <select class="browser-default" name="deliveryDate" id="deliveryDate" v-model="deliveryDate">
+                                <option value="" disabled selected>Choose delivery date</option>
+                                <option v-for="date of Object.keys(slots)" :key="date" :value="date">{{date}}</option>
+                            </select>
                         </div>
                         <div>
-                            <select class="browser-default" name="deliveryTime" id="deliveryTime">
+                            <select class="browser-default" name="deliveryTime" id="deliveryTime" v-model="deliveryTime">
                                 <option value="" disabled selected>Choose delivery time</option>
-                                <option value="9">09:00</option>
-                                <option value="10">10:00</option>
-                                <option value="11">11:00</option>
-                                <option value="12">12:00</option>
-                                <option value="13">13:00</option>
-                                <option value="14">14:00</option>
-                                <option value="15">15:00</option>
-                                <option value="16">16:00</option>
+                                <option v-for="slot of slots[deliveryDate]" :key="slot.id" :value="slot['id']">{{slot['start_time']}}</option>
                             </select>
                         </div>
                     </form>
@@ -158,19 +153,20 @@ export default {
             email:'',
             street:'',
             deliveryTime:'',
-            deliveryDate:null,
+            deliveryDate:'',
             notes:'',
             paymentMethod:'cash',
             stripe: {},
             cardElement:{},
-            isLoading:true
+            isLoading:true,
+            slots:{}
         }
     },
     async created(){
         this.isLoading = true;
         await this.getCart();
         await this.getCustomer();
-
+        await this.getDeliveryTimeslots();
         this.firstName = this.customer['first_name'];
         this.lastName = this.customer['last_name'];
         this.email = this.customer['email'];
@@ -179,17 +175,29 @@ export default {
         this.town = this.customer['town'];
         this.street = this.customer['street'];
         this.country = 'Jamaica';
-
         await this.getPublicKey();
         this.stripe = await loadStripe(this.stripeKey);
+
+        for(let slot of this.timeslots){
+            if(!(slot['date'] in this.slots)){
+                this.slots[slot['date']] = [slot['timeslot']];
+            }
+            else{
+                this.slots[slot['date']].push(slot['timeslot']);
+            }
+        }
+
         this.isLoading = false;
     },
     mounted(){
         var elems = document.querySelectorAll('.modal');
         M.Modal.init(elems);
     },
+    computed:{
+        ...mapGetters(['cart', 'customer', 'stripeKey', 'timeslots'])
+    },
     methods:{
-        ...mapActions(['getCart', 'getCustomer', 'createOrder', 'getPublicKey', 'makePayment', 'setDeliveryLocation','scheduleOrder']),
+        ...mapActions(['getCart', 'getCustomer', 'createOrder', 'getPublicKey', 'makePayment', 'setDeliveryLocation','scheduleOrder', 'getDeliveryTimeslots']),
         async placeOrder(){
             
             /**
@@ -225,8 +233,8 @@ export default {
 
                 let scheduleForm = new FormData();
                 scheduleForm.set('order_id', orderId);
-                scheduleForm.set('date', '2021-11-12');
-                scheduleForm.set('timeslot', 2);
+                scheduleForm.set('date', this.deliveryDate);
+                scheduleForm.set('timeslot', this.deliveryTime);
                 console.log(this.deliveryDate);
 
                 await this.scheduleOrder(scheduleForm);
@@ -254,11 +262,14 @@ export default {
                         await this.makePayment(paymentForm);
                         this.isLoading = false;  
                         M.toast({html: 'Payment Complete. Checkout Successful!'});
+                        this.$router.push('/cart');
                     }   
                     return; 
                 }
                 else{
                     M.toast({html: 'Checkout Successful! Your delivery is on the way.'});
+                    this.$router.push('/cart');
+                    return;
                 }
             }
             catch(err){
@@ -292,9 +303,7 @@ export default {
             this.cardElement.unmount();
         }
     },
-    computed:{
-        ...mapGetters(['cart', 'customer', 'stripeKey'])
-    }
+    
 }
 </script>
 

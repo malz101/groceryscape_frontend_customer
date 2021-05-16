@@ -5,6 +5,7 @@ import authService from '../service/auth.service';
 import cartService from '../service/cart.service';
 import paymentService from '../service/payment.service';
 import orderService from '../service/order.service';
+import recommendService from '../service/recommend.service'
 
 Vue.use(Vuex);
 
@@ -13,9 +14,12 @@ export default new Vuex.Store({
     isLoggedIn: sessionStorage.getItem('user_id') || '',
     token: sessionStorage.getItem('token') || '',
     groceries:[],
+    recommendedGroceries:'',
     categories:{},
     customer:{},
     cart:[],
+    orders:[],
+    timeslots:[],
     cartAmount:0,
     idsInCart:[],
     stripeKey:''
@@ -48,17 +52,26 @@ export default new Vuex.Store({
     groceries(state){
       return state.groceries;
     },
+    recommendedGroceries(state){
+      return state.recommendedGroceries;
+    },
     categories(state){
       return state.categories;
     },
     cart(state){
       return state.cart;
     },
+    orders(state){
+      return state.orders;
+    },
     customer(state){
       return state.customer;
     },
     stripeKey(state){
       return state.stripeKey;
+    },
+    timeslots(state){
+      return state.timeslots;
     }
   },
   mutations: {
@@ -73,17 +86,26 @@ export default new Vuex.Store({
     setGroceries(state, groceries){
       state.groceries = groceries;
     },
+    setRecommendedGroceries(state, groceries){
+      state.recommendedGroceries = groceries;
+    },
     setCategories(state, categories){
       state.categories = categories;
     },
     setCart(state, cart){
       state.cart = cart;
     },
+    setOrders(state){
+      state.orders = orders;
+    },
     setCustomer(state, customer){
       state.customer=customer;
     },
     setStripeKey(state, key){
       state.stripeKey = key;
+    },
+    setTimeslots(state, timeslots){
+      state.timeslots = timeslots;
     }
   },  
   actions: {
@@ -141,6 +163,26 @@ export default new Vuex.Store({
         commit('setCategories',list);
       });
     },
+    getRecommendedGroceries({commit, getters}){
+    return recommendService.getRecommendedGroceries(getters.token)
+      .then(({data, msg})=>{
+        if (msg==''){
+          commit('setRecommendedGroceries', data['groceries']);
+          return true;
+        }
+        else if(msg=='no customer found'){
+          commit('setRecommendedGroceries', []);
+          return true;
+        }
+        else{
+          alert('An error occurred');
+          return false;
+        }
+      })
+      .catch(err=>{
+        return false;
+      });
+    },
     getCart({commit, getters}){
       return cartService.getCart(getters.token)
       .then(({data, msg})=>{
@@ -169,6 +211,39 @@ export default new Vuex.Store({
       })
       .catch((err)=>{
         console.log(err);
+        return false;
+      })
+    },
+    getOrders({commit, getters}){
+      return orderService.getOrders(getters.token)
+      .then(({msg, data})=>{
+        // if(msg == 'success'){
+        //   commit('setOrders', data['orders']);
+        // }
+        // else{
+        //   commit('setOrders', []);
+        // }
+        console.log(data);
+      })
+      .catch(err=>{
+        alert(err);
+        return false;
+      })
+    },
+    getDeliveryTimeslots({commit, getters}){
+      return orderService.getDeliveryTimeslots(getters.token)
+      .then(({msg, data})=>{
+        if(msg == 'success'){
+          commit('setTimeslots', data['slots']);
+          return true;
+        }
+        else{
+          commit('setTimeslots', []);
+          return true;
+        }
+      })
+      .catch(err=>{
+        alert(err);
         return false;
       })
     },

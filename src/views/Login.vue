@@ -1,11 +1,17 @@
 <template>
     <div class="section">
-        <div class="container login-container">
-            <span class="logo"><img src="../assets/default.svg" alt="GroceryScape Logo" srcset=""></span>
+        <div class="login-header">
+            <h5>My Account</h5>
+            <p>Home / My Account</p>
+        </div>
+        <div class="login-container">
+            <span>Login</span>
             <p id="error-text" class="hide error-text">Login Failed. Try Again</p>
             <form>
-                <input type="email" placeholder="Email" v-model="username">
-                <input type="password" placeholder="Password" v-model="password"> 
+                <label for="email"></label>
+                <input type="email" name="email" id="email" placeholder="Email" v-model="username">
+                <label for="password"></label>
+                <input type="password" name="password" id="password" placeholder="Password" v-model="password"> 
                 <a type="button" class="btn login-btn" @click="signIn">Log In</a>
             </form>
         </div>
@@ -46,12 +52,45 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+.section{
+    padding-top: 0;
+}
+
+.login-header{
+    text-align: center;
+    background: #00242c;
+    color: white;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 32px;
+    padding-bottom: 32px;
+
+    h5{
+        margin-top: 0;
+        font-size: 32px;
+    }
+    p{
+        font-size: 10px;
+    }
+}
+
 .login-container{
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: space-evenly;
-    min-height: 65vh;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    background: var(--color-accent);
+    span{
+        font-weight: bold;
+        font-size: 2em;
+        margin-bottom: 16px;
+        color: var(--bg-primary);
+    }
 
     .error-text{
         color: red;

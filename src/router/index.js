@@ -6,6 +6,7 @@ import Cart from '../views/Cart';
 import Contact from '../views/Contact';
 import AboutUs from '../views/AboutUs';
 import Login from '../views/Login';
+import OrderHistory from '../views/OrderHistory';
 import Register from '../views/Register';
 import Checkout from '../views/Checkout';
 import Item from '../views/Item';
@@ -49,6 +50,10 @@ const routes = [
   {
     path:'/register',
     component: Register
+  },
+  {
+    path:'/order-history',
+    component: OrderHistory
   },
   { 
     path: "*", 

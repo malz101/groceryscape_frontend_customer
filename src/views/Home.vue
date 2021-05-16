@@ -13,25 +13,21 @@
       </div>
     </div>
 
-    <div class="container">
-      <div class="search-div">
-            <input type="search" name="search" id="search" v-model="searchString" placeholder="Enter Search Here..." @input="search">
-            <a @click="search" class="btn search-btn">Search</a>
-        </div>
-    </div>
-
     <div class="section">
       <div class="container">
         <div class="categories-grid">
-          <div class="categories">
+          <div class="categories vld-parent">
             <span class="categories-title">Product Categories</span>
-            <ul class="categories-list">
+            <ul v-if="!isLoading" class="categories-list">
                  <li v-for="category of Object.keys(categories).sort().slice(0,9)" :key="category">
                   <img :src="`${api}/uploads/${categories[category][0]['photo']}`" alt="Grocery Image">
                   <span>{{category}}</span>
                   <strong>{{categories[category].length}}</strong>
                 </li>
             </ul>
+            <div v-else class="container loading">
+              <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" />
+            </div>
           </div>
           <div class="slider">
             <ul class="slides">
@@ -49,7 +45,7 @@
     
     <div class="section vld-parent">
       <div v-if="localCategories!={} && !isLoading">
-        <div class="container" v-for="category of Object.keys(localCategories).sort().slice(0,2)" :key="category">
+        <div class="container" v-for="category of Object.keys(localCategories).sort().slice(0,1)" :key="category">
           <div class="title-container">
             <h6>{{category}}</h6>
             <a href="/shop" class="btn-small">View All</a>
@@ -79,6 +75,40 @@
         </div>
       </div>
     </div>
+
+    <div v-if="isLoggedIn" class="section vld-parent">
+      <div v-if="!isLoading">
+        <div class="container">
+          <div class="title-container">
+            <h6>Suggestions for you <span class="new badge" data-badge-caption="">Check these out</span> </h6>
+            <a href="/shop" class="btn-small">View All</a>
+          </div>
+          <div class="grid">
+            <div class="card" v-for="grocery of recommendedGroceries.slice(0, 10)" :key="grocery.id">
+              <div class="card-image">
+                <a :href="'/item/'+grocery.id"><img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image"></a>
+              </div>
+              <div class="card-content">
+                <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name}}</a> </span>
+                <p class="units"> <i class="material-icons tiny" :class="{'in-stock':grocery['quantity']>0, 'out-of-stock':grocery['quantity']==0}">check_circle</i> <b>In stock</b>- 1 {{grocery['units']}}</p>
+                <p class="price">${{grocery['cost_per_unit']}}</p>
+              </div>
+              <div class="card-action">
+                <a v-if="!(idsInCart.includes(grocery.id))" @click="addItemToCart(grocery['id'])" class="btn-small add-to-cart-btn"> <i class="material-icons tiny">add_shopping_cart</i> Add to Cart</a>
+                <a v-else :href="'/item/'+grocery.id" class="btn-small add-to-cart-btn"> <i class="material-icons tiny">shopping_cart</i> Read more</a>
+                <star-rating :clearable="true" :rating="0" :show-rating="false" :star-size="14" :animate="true" @rating-selected ="setRating($event, grocery.id)"></star-rating> 
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else >
+        <div class="container loading">
+          <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" />
+        </div>
+      </div>
+    </div>
+
     <div class="section">
       <div class="container" style="text-align: center;"><a href="/shop" class="btn show-more-btn">Show More</a></div>
     </div>
@@ -140,6 +170,7 @@ export default {
     this.isLoading = true;
     await this.getGroceries();
     if(this.isLoggedIn){
+      await this.getRecommendedGroceries();
       await this.getCart();
     }
     this.localCategories = this.categories;
@@ -154,7 +185,7 @@ export default {
     M.Slider.init(elems,{duration: 3000, interval:5000});  
   },
   methods:{
-    ...mapActions(['getGroceries', 'addToCart', 'getCart', 'rateGrocery']),
+    ...mapActions(['getGroceries', 'addToCart', 'getCart', 'rateGrocery', 'getRecommendedGroceries']),
     async addItemToCart(id){
       if(this.isLoggedIn){
         const form = new FormData();
@@ -204,7 +235,7 @@ export default {
     }
   },
   computed:{
-    ...mapGetters(['isLoggedIn','categories', 'cart', 'idsInCart']),
+    ...mapGetters(['isLoggedIn','categories', 'cart', 'idsInCart', 'recommendedGroceries']),
   },
 }
 </script>
@@ -216,40 +247,6 @@ export default {
 
 .home{
   background: var(--color-accent);
-}
-
-.search-div{
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-end;
-  a{  
-    display: flex;
-    align-items: center;
-    box-shadow: none;
-    height: 35px;
-    background: var(--color-primary);
-    color: #00242c;
-    border-radius: 0;
-  }
-  a:hover{
-    opacity: 0.9;
-  }
-
-  a:focus{
-    border: 1px solid grey;
-  }
-
-  input[type=search]{
-    width: 200px;
-    background: white;
-    padding: 16px;
-    box-sizing: border-box;
-    border: 1px solid grey;
-    height: 35px;
-  }
-  input[type=search]:focus{
-    border: 1px solid var(--color-primary);
-  }
 }  
 
 .categories-grid{

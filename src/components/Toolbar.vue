@@ -2,7 +2,12 @@
     <div class="toolbar">
         <div class="header-bar">
             <span id="brand">  <router-link to="/"><img src="../assets/default.svg" alt="" srcset=""></router-link> </span>
-            
+            <div class="container">
+                <div class="search-div">
+                    <input type="search" name="search" id="search" v-model="searchString" placeholder="Enter Search Here..." @input="search">
+                    <a @click="search" class="btn search-btn">Search</a>
+                </div>
+            </div>
             <div class="cart-logout-container">
                 <span class="cart">
                     <a href="/cart" :data-content="cartAmount" id="cart-badge" class="btn-small"><i class="material-icons tiny">add_shopping_cart</i></a>
@@ -16,7 +21,7 @@
             <div class="toolbar">
                 <router-link to="/"><span>Home</span></router-link>
                 <router-link to="/shop">Shop</router-link>
-                <router-link to="/shop">Order History</router-link>
+                <router-link to="/order-history">Order History</router-link>
                 <router-link to="/contact">Contact</router-link>
                 <router-link to="/about-us">About Us</router-link>
             </div>
@@ -27,11 +32,19 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 export default {
+    data(){
+        return{
+            searchString:''
+        }
+    },
     methods:{
         ...mapActions(['logout']),
         async signOut(){
             await this.logout();
             this.$router.push('/login');
+        },
+        search(){
+            
         }
     },
     computed:{
@@ -55,6 +68,40 @@ export default {
         font-weight: bold;
         font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
         color: black;
+    }
+
+    .search-div{
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        a{  
+            display: flex;
+            align-items: center;
+            box-shadow: none;
+            height: 35px;
+            background: var(--color-primary);
+            color: #00242c;
+            border-radius: 0;
+        }
+        a:hover{
+            opacity: 0.9;
+        }
+
+        a:focus{
+            border: 1px solid grey;
+        }
+
+        input[type=search]{
+            width: 400px;
+            background: white;
+            padding: 16px;
+            box-sizing: border-box;
+            border: 1px solid grey;
+            height: 35px;
+        }
+        input[type=search]:focus{
+            border: 1px solid var(--color-primary);
+        }
     }
     
     .cart-logout-container{

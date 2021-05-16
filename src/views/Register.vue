@@ -1,5 +1,9 @@
 <template>
     <div class="register">
+        <div class="register-header">
+            <h5>My Account</h5>
+            <p>Home / My Account</p>
+        </div>
         <div class="section">
             <div class="container">
                 <h4>Register</h4>
@@ -11,6 +15,10 @@
                     <div class="input-div">
                         <label for="last_name">Last Name * </label>
                         <input type="text" name="last_name" id="last_name" v-model="lastName" required>
+                    </div>
+                    <div class="input-div">
+                        <label for="street">Street * </label>
+                        <input type="text" name="street" id="street" v-model="street" required>
                     </div>
                     <div class="input-div">
                         <label for="town">Town * </label>
@@ -44,11 +52,10 @@
                             <option value="female">Female</option>
                         </select>
                     </div>
+                    <button class="btn bg-color sign-up-btn" type="submit">Register <i class="material-icons right tiny">send</i></button>
                     <div>
                         <p>Your personal data will be used to support your experience throughout this website and to manage access to your account.</p>
-                    </div>
-
-                    <button class="btn bg-color sign-up-btn" type="submit">Register <i class="material-icons right tiny">send</i></button>
+                    </div>  
                 </form>
             </div>
         </div>
@@ -64,6 +71,7 @@ export default {
             lastName:'',
             town:'',
             parish:'',
+            street:'',
             phone:'',
             email:'',
             gender:'',
@@ -85,6 +93,7 @@ export default {
 
             registerForm.set('firstname', this.firstName);
             registerForm.set('lastName', this.lastName);
+            registerForm.set('street', this.street);
             registerForm.set('town', this.town);
             registerForm.set('parish', this.parish);
             registerForm.set('gender', this.gender);
@@ -114,8 +123,29 @@ export default {
     background: var(--bg-primary);
 }
 
-.register{
-    background: rgb(255, 255, 255);
+.register .section{
+    background: var(--light-accent);
+}
+
+.register-header{
+    text-align: center;
+    background: #00242c;
+    color: white;
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-top: 32px;
+    padding-bottom: 32px;
+
+    h5{
+        margin-top: 0;
+        font-size: 32px;
+    }
+    p{
+        font-size: 10px;
+    }
 }
 
 h4{
