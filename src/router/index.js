@@ -2,7 +2,6 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
 import Shop from '../views/Shop';
-import About from '../views/About';
 import Cart from '../views/Cart';
 import Contact from '../views/Contact';
 import AboutUs from '../views/AboutUs';
@@ -30,10 +29,6 @@ const routes = [
   {
     path:'/item/:id',
     component:Item
-  },
-  {
-    path:'/about',
-    component: About
   },
   {
     path:'/cart',

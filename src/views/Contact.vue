@@ -53,6 +53,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.section{
+    border-bottom: 1px solid #ddd;
+}
 
 .contact-header{
     text-align: center;

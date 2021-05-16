@@ -4,11 +4,11 @@
             <h5>About Us</h5>
             <p>Home / About Us</p>
         </div>
-        <div class="section">
+        <div class="section about-us-section">
             <div class="container">
                 <div class="about-us-row">
                     <div class="image-col">
-                        <img src="../assets/supermarket.png" alt="Supermarket Image">
+                        <img src="../assets/deliveryman.jpg" alt="Supermarket Image">
                     </div>
                     <div class="text-col">
                         <h5>
@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <div class="section">
+        <div class="section team-section">
             <div class="title">
                 <h4><b>Our Team</b></h4>
                 <p>Something ephemoral is gonna go header</p>
@@ -238,14 +238,19 @@ export default {
     }
 }
 
+.team-section{
+    background: var(--color-accent);
+}
+
 .team-row{
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
 
     .card{
+        background: var(--color-accent);
         box-shadow: none;
-        width: 300px;
+        width: 250px;
         padding: 12px;
         box-sizing: content-box;
         text-align: center;

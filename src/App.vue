@@ -34,7 +34,7 @@ export default{
 
   --bg-primary: #00242c;
   --color-primary: #81e291;
-  --color-accent: rgb(236, 247, 255);
+  --color-accent: rgb(240, 249, 255);
   --item-bg-color: rgb(250, 250, 250);
   --cost-color: rgb(4, 175, 4);
   --light-color: rgb(165, 165, 165);

@@ -35,7 +35,7 @@
 <style lang="scss" scoped>
 
 .footer{
-  background: rgb(226, 226, 226);
+  background: white;
   .footer-grid{
     display: flex;
     flex-wrap: wrap;

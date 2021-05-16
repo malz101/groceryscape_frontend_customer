@@ -60,8 +60,7 @@ export default {}
 nav {
     background: white;
     box-shadow: none;
-    border-bottom: 1px solid #eee;
-    box-shadow: 0 2px 8px 3px #eee;
+    border-bottom: 2px solid #eee;
     .toolbar{
         display: flex;
         justify-content: center;

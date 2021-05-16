@@ -12,32 +12,43 @@
                 <a href="#" class="modal-close btn-flat">Close</a>
             </div>
         </div>
-
-        <div class="container">
-            <span class="heading"><i class="material-icons tiny">home</i> <strong> <router-link to="/">Home</router-link> </strong>/ Shop </span>
-            <div class="section">
+        
+        <div class="section heading-section">
+            <div class="container">
+                <div class="heading"><i class="material-icons tiny">home</i> <strong> <router-link to="/">Home</router-link> </strong> <span>/ Shop</span> </div>
+            </div>
+        </div>
+        
+        
+        <div class="product-section section">
+            <div class="container">
                 <div class="grid">
                     <div class="categories">
                         <span class="categories-title">Product Categories</span>
                         <ul class="categories-list">
-                            <li v-for="category of Object.keys(categories)" :key="category"><a :class="{'active':category==activeCategoryName}" @click="showCategory(category)"> {{category}} </a></li>
+                            <li v-for="category of Object.keys(categories).sort()" :key="category"><a :class="{'active':category==activeCategoryName}" @click="showCategory(category)"> {{category}} </a></li>
                         </ul>
                     </div>
                     <div class="product">
-                        <span class="product-title">Quality & Freshness Guaranteed! Good Health.</span>
+                        <div class="product-title">
+                            <img src="../assets/default.svg" alt="GroceryScape">
+                            <span>Quality & Freshness Guaranteed! Good Health.</span>
+                        </div>
                         <div class="product-grid">
-                            <div class="card" v-for="grocery of activeCategory" :key="grocery.id">
+                            <div class="card horizontal" v-for="grocery of activeCategory" :key="grocery.id">
                                 <div class="card-image">
                                     <a :href="'/item/'+grocery.id"><img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image"></a>
                                 </div>
-                                <div class="card-content">
-                                    <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name}}</a> </span>
-                                    <p>{{grocery['cost_per_unit']}}</p>
-                                </div>
-                                <div class="card-action">
-                                    <a v-if="!(idsInCart.includes(grocery.id))" @click="addItemToCart(grocery.id)" class="add-to-cart-btn btn-small btn-flat">Add to Cart</a>
-                                    <a v-else href="/cart" class="add-to-cart-btn btn-small btn-flat">View Cart</a>
-                                    <star-rating :clearable="true" :rating="0" :show-rating="false" :star-size="14" :animate="true" @rating-selected ="setRating($event, grocery.id)"></star-rating> 
+                                <div class="card-stacked">
+                                    <div class="card-content">
+                                        <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name}}</a> </span>
+                                        <p class="units"> <i class="material-icons tiny" :class="{'in-stock':grocery['quantity']>0, 'out-of-stock':grocery['quantity']==0}">check_circle</i> <b>In stock</b>- 1 {{grocery['units']}}</p>
+                                        <p class="price">${{grocery['cost_per_unit']}}</p>
+                                        <p class="description"> {{grocery['description']}} </p>
+                                        <a v-if="!(idsInCart.includes(grocery.id))" @click="addItemToCart(grocery['id'])" class="btn-small add-to-cart-btn"> <i class="material-icons tiny">add_shopping_cart</i> Add to Cart</a>
+                                        <a v-else href="/shop" class="btn-small add-to-cart-btn"> <i class="material-icons tiny">shopping_cart</i> View cart</a>
+                                        <star-rating :clearable="true" :rating="0" :show-rating="false" :star-size="14" :animate="true" @rating-selected ="setRating($event, grocery.id)"></star-rating> 
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -120,11 +131,13 @@ export default {
   background: var(--bg-primary);
 }
 
-.shop{
+.heading-section{
+    background: white;
+    border-bottom: 1px solid #eee;
     .heading{
         font-size: 12px;
         display: flex;
-        align-items: flex-start;
+        align-items: flex-start;    
         i{
             margin-right: 4px;
         }
@@ -138,121 +151,179 @@ export default {
                 text-decoration: underline;
             }
         }
+        span{
+            color: #999;
+        }
     }
+}
 
+.product-section{
+    background: var(--color-accent);
+}
+
+.shop{
     .grid{
         display: grid;
-        grid-template-columns: 150px repeat(5, auto);       
+        grid-template-columns: 150px repeat(6, auto);       
         gap: 16px;
 
         .categories{
-            grid-column: 1;
-            padding-left: 8px;
-            box-shadow: 1px 1px 1px 1px #ececec, -1px -1px 1px 1px #ececec;
-            
+            grid-column: 1 / span 2;
+            background: white;
+            height: fit-content;
             .categories-title{
-                padding-bottom: 8px;
-                height: 40px;
-                border-bottom:1px solid black;
-                display: inline-flex;
-                align-items: flex-end;
-                font-size: 14px;
-                font-weight: bold;
+                background: var(--bg-primary);
+                color: #fff;
+                display: block;
+                padding: 1em 1em;
+                font-size: 12px;
             }
             
             .categories-list{
+                margin-top: 0;
+                li{
+                    font-size: 0.8em;
+                    padding: 0.3em 1em;
+                    background: #fff;
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    border-bottom: 1px solid #eee;
+                }
                 a{
                     color: gray;
                     font-size: 12px;
                     cursor: pointer;
                 }
                 a.active{
-                    color: black;
+                    color: green;
                     font-weight: bold;
                     text-decoration: underline;
                 }
                 a:hover{
+                    color: var(--bg-primary);
                     text-decoration: underline;
                 }
             }
         }
 
         .product{
-            grid-column: 2 / span 5;
+            grid-column: 3 / span 4;
 
             .product-title{
-                margin-bottom: 12px;
                 display: flex;
                 background: #00242c;
                 color: white;
-                height: 40px;
+                height: 70px;
                 align-items: center;
+                justify-content: space-between;
                 padding-left: 8px;
+                padding-right: 2em;
                 font-weight: bold;
+                padding-top: 2em ;
+                padding-bottom: 2em;
+                margin-bottom: 12px;
+                gap: 10px;
+                img{
+                    width: 80px;
+                    height: 70px;
+                }
+                span{
+                    font-size: 1.3em;
+                }
             }
             .product-grid{
-                display: grid;
+                display: flex;
                 gap: 24px;
-                grid-template-columns: repeat(3, auto);
-
+                flex-direction: column; 
                 .card{
-                    padding: 12px;
-                    box-sizing: content-box;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                    width: 180px;
-
-                    .card-title{
-                        margin-bottom: 0;
-                        display: block;
-                        white-space: nowrap;
-                        overflow: hidden;
-                        a{
-                            color: orange;
-                            text-align: center;
-                            font-size: 14px;
-                            font-weight: bold;
-                        }
-                        a:hover{
-                            text-decoration: underline;
-                        }
-                    }
-
+                    padding: 8px;
+                    width: 100%;
                     .card-content{
-                        text-align: center;
                         padding:8px 0px 0px 0px;
-                        p{
+                        .card-title{
+                            margin-bottom: 0;
+                            display: block;
+                            white-space: nowrap;
+                            overflow: hidden;
+                            a{
+                                color: green;
+                                text-align: center;
+                                font-size: 14px;
+                                font-weight: bold;
+                            }
+                            a:hover{
+                                text-decoration: underline;
+                            }
+                        }
+
+                        .units{
+                            font-size: 10px;
+                            color: var(--light-color);
+                            display: flex;
+                            align-items: center;
+                            gap: 4px;
+                            justify-content: flex-start;
+                        }
+                        .in-stock{
+                            color: green;
+                        }
+                        .out-of-stock{
+                            color: red;
+                        }
+                        .price{
                             font-weight: bold;
                             max-height: 80px;
-                            font-size: 12px;
+                            margin: 4px 0px;
+                            font-size: 14px;
                             overflow: hidden;
+                        }
+
+                        .description{
+                            color: #888;
+                            padding: 0.5em 0;
+                            font-size: 0.9em;
+                            height: 70px;
+                            text-overflow: ellipsis;
+                            white-space: wrap;
+                            overflow: hidden;
+                        }
+
+                        .vue-star-rating{
+                            justify-content: flex-end;
                         }
                     }
                     .card-image{
                         width: 180px;
-                        height: 100px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
                         img{
-                            height: 100px;
-                        }
-                        img:hover{
-                            transform: scale(1.05);
+                            height: 130px;
+                            width: 130px;
                         }
                     }
-                    .card-action {
-                        display: flex;
-                        flex-direction: column;
+                    .add-to-cart-btn{
+                        border-radius: 18px;
+                        margin-top: 8px;
+                        margin-bottom: 8px;
+                        display: inline-flex;
+                        height: 26px;
                         align-items: center;
-                        padding-top:8px;
-                        padding-bottom: 8px;
-                        .add-to-cart-btn{
-                            color: orange;
-                            font-size: 0.8em;
-                        }
-                        .add-to-cart-btn:hover{
-                            background: orange;
-                            color: white;
-                        }
+                        color: white;
+                        background: green;
+                        font-size: 0.8em;
+                        padding-top: 0;
+                        padding-bottom: 0;
+                        text-transform: none;
+                    }
+                    .add-to-cart-btn:hover{
+                        background: var(--bg-primary);
+                    }
+                }
+                .card:hover{
+                    img{
+                        transform: scale(1.1);
                     }
                 }
             }
