@@ -26,8 +26,7 @@
           <div class="categories">
             <span class="categories-title">Product Categories</span>
             <ul class="categories-list">
-                <!-- <li v-for="category of Object.keys(categories)" :key="category"><a :class="{'active':category==activeCategoryName}" @click="showCategory(category)"> {{category}} </a></li> -->
-                <li v-for="category of Object.keys(categories).sort().slice(0,9)" :key="category">
+                 <li v-for="category of Object.keys(categories).sort().slice(0,9)" :key="category">
                   <img :src="`${api}/uploads/${categories[category][0]['photo']}`" alt="Grocery Image">
                   <span>{{category}}</span>
                   <strong>{{categories[category].length}}</strong>
@@ -51,7 +50,10 @@
     <div class="section vld-parent">
       <div v-if="localCategories!={} && !isLoading">
         <div class="container" v-for="category of Object.keys(localCategories).sort().slice(0,2)" :key="category">
-          <h6>{{category}}</h6>
+          <div class="title-container">
+            <h6>{{category}}</h6>
+            <a href="/shop" class="btn-small">View All</a>
+          </div>
           <div class="grid">
             <div class="card" v-for="grocery of localCategories[category].slice(0, 8)" :key="grocery.id">
               <div class="card-image">
@@ -99,7 +101,7 @@
               <span class="icon-span"><i class="material-icons">local_mall</i></span>
               <div class="card-data">
                 <span class="card-title">100% Satisfaction Guaranteed</span>
-                <p>Best quality Produce</p>
+                <p>Best quality produce</p>
               </div>
             </div>
           </div>
@@ -311,6 +313,17 @@ export default {
   }
 }
 
+.title-container{
+  display: flex;
+  align-items: center;
+  a{
+    margin-left: auto;
+    text-transform: none;
+    border-radius: 16px;
+    background: green;
+  }
+}
+
 .grid{
   display: grid;
   grid-template-columns: repeat(auto-fill, 200px);
@@ -322,14 +335,15 @@ export default {
     box-sizing: content-box;
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: space-between;
     border-radius: 4px;
     box-shadow: 0px 0px 8px 2px #eee;
     .card-image{
-      width: 170px;
-      height: 100px;
+      width: 130px;
+      height: 130px;
       img{
-        height: 100px;
+        height: 130px;
       }
     }
     .card-content{
@@ -382,6 +396,7 @@ export default {
       padding-top:8px;
       padding-bottom: 8px;
       .add-to-cart-btn{
+        border-radius: 18px;
         margin-bottom: 8px;
         display: flex;
         height: 26px;

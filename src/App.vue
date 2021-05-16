@@ -28,6 +28,10 @@ export default{
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+.container{
+  width: 80%;
+}
+
   --bg-primary: #00242c;
   --color-primary: #81e291;
   --color-accent: rgb(236, 247, 255);
