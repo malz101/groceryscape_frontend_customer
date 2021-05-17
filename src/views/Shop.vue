@@ -39,7 +39,7 @@
                         <div class="suggestions vld-parent">
                             <span v-if="isLoading" class="suggestions-title">Top products<span class="new badge" data-badge-caption="">You may like</span></span> 
                             <span v-else-if="!isLoading && !isLoggedIn" class="suggestions-title">Top products<span class="new badge" data-badge-caption="">You may like</span></span> 
-                            <span v-else-if="!isLoading && isLoggedIn && orders.length>0" class="suggestions-title">Since you bought {{orders[randomPick]['order_items'][0]['name']}}</span> 
+                            <span v-else-if="!isLoading && isLoggedIn && orders.length>0" class="suggestions-title">Since you bought {{orders[randomPick]['order_items'][0]['name']}}, you may also like:</span> 
                             <span v-else class="suggestions-title">Suggested for you<span class="new badge" data-badge-caption="">You may like</span></span> 
                             <div v-if="isLoading" class="container loading">
                                 <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" :color="'#080'" />

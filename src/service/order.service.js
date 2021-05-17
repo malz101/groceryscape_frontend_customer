@@ -15,7 +15,7 @@ export default {
                 return resolve(resp.data);
             }
             else{
-                reject(resp.data);
+                return reject(resp.data);
             }
         });
     },
@@ -31,7 +31,7 @@ export default {
                 return resolve(resp.data);
             }
             else{
-                reject(resp.data);
+                return reject(resp.data);
             }
         });
     },
@@ -47,7 +47,7 @@ export default {
                 return resolve(resp.data);
             }
             else{
-                reject(resp.data);
+                return reject(resp.data);
             }
         });
     },
@@ -63,7 +63,7 @@ export default {
                 return resolve(resp.data);
             }
             else{
-                reject(resp.data);
+                return reject(resp.data);
             }
         });
     },
@@ -79,7 +79,7 @@ export default {
                 return resolve(resp.data);
             }
             else{
-                reject(resp.data);
+                return reject(resp.data);
             }
         });
     },
@@ -95,7 +95,7 @@ export default {
                 return resolve(resp.data);
             }
             else{
-                reject(resp.data);
+                return reject(resp.data);
             }
         });
     },
@@ -112,7 +112,7 @@ export default {
                 return resolve(resp.data);
             }
             else{
-                reject(resp.data);
+                return reject(resp.data);
             }
         });
     }

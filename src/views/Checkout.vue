@@ -131,7 +131,7 @@
                 <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" :color="'#080'" />
                 <div id="card-element"></div>
             </div>
-            <a @click="placeOrder" class="btn primary-bg-color">Place Order</a>
+            <a @click="placeOrder" class="btn order-btn primary-bg-color">Place Order</a>
         </div>
     </div>
   </div>
@@ -241,11 +241,11 @@ export default {
                 scheduleForm.set('order_id', orderId);
                 scheduleForm.set('date', this.deliveryDate);
                 scheduleForm.set('timeslot', this.deliveryTime);
-                console.log(this.deliveryDate);
 
                 await this.scheduleOrder(scheduleForm);
 
-                if(this.paymentMethod == 'card'){
+                if(this.paymentMethod == 'direct'){
+                    console.log(this.paymentMethod);
                     this.isLoading = true;
                     let result = await this.stripe.createPaymentMethod({
                         type: 'card',
@@ -266,15 +266,16 @@ export default {
                         paymentForm.set("payment_method_id", result.paymentMethod.id);
                         paymentForm.set("order_id", orderId);
                         await this.makePayment(paymentForm);
+                        console.log('Making card payment.');
                         this.isLoading = false;  
                         M.toast({html: 'Payment Complete. Checkout Successful!'});
-                        this.$router.push('/cart');
+                        this.$router.push('/');
                     }   
                     return; 
                 }
                 else{
-                    M.toast({html: 'Checkout Successful! Your delivery is on the way.'});
-                    this.$router.push('/cart');
+                    M.toast({html: 'Checkout Successful! Your order has been placed.'});
+                    this.$router.push('/');
                     return;
                 }
             }
@@ -382,6 +383,10 @@ export default {
     max-width: 400px;
     margin-top:8px;
     margin-bottom: 16px;
+}
+
+.order-btn{
+    text-transform: none;
 }
 
 </style>

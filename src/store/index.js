@@ -407,6 +407,7 @@ export default new Vuex.Store({
       })
       .catch((err)=>{
         alert(err);
+        return false;
       });
     },
     setDeliveryLocation({getters}, payload){

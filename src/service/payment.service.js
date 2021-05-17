@@ -15,25 +15,30 @@ export default {
                 return resolve(resp.data);
             }
             else{
-                reject(resp.data);
+                return reject(resp.data);
             }
         });
     },
     makePayment(token, body){
         return new Promise(async function(resolve, reject){
-            const resp = await axios.post(`${config.api}/manage_customer_account/pay`,body, {
-                headers:{
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            try{
+                const resp = await axios.post(`${config.api}/manage_customer_account/pay`,body, {
+                    headers:{
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                });
 
-            if (resp.status == HTTP_STATUS_OK){
-                return resolve(resp.data);
+                if (resp.status == HTTP_STATUS_OK){
+                    return resolve(resp.data);
+                }
+                else{
+                    return reject(resp.data);
+                }
+            }catch(err){
+                return false
             }
-            else{
-                reject(resp.data);
-            }
+            
         });
     }
 }

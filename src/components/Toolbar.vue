@@ -8,10 +8,10 @@
             </div>
             <div class="cart-logout-container">
                 <span class="cart">
-                    <a href="/cart" :data-content="cartAmount" id="cart-badge" class="btn-small btn-flat"><i class="material-icons tiny">add_shopping_cart</i>{{customer['first_name']}}'s Cart</a>
+                    <a href="/cart" :data-content="cartAmount" id="cart-badge" class="btn-small btn-flat tooltipped" data-position="bottom" data-tooltip="Cart"><i class="material-icons tiny">add_shopping_cart</i>{{customer['first_name']}}'s Cart</a>
                 </span>
                 <span class="logout">
-                    <a @click="signOut" class="btn-small btn-flat"><i class="material-icons tiny">exit_to_app</i>Logout</a>
+                    <a @click="signOut" class="btn-small btn-flat tooltipped" data-position="bottom" data-tooltip="Logout"><i class="material-icons tiny">exit_to_app</i>Logout</a>
                 </span>
             </div>
         </div>
