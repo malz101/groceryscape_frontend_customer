@@ -29,7 +29,7 @@
                             <i class="material-icons">redeem</i><span>Orders</span>
                         </h5>
                         <div class="card item-card" v-for="order in orders" :key="order['order_id']">
-                            <p class="delivery-p"><span><b>Delivery Date:</b> {{order['formatted_delivery_date']}} <b>Delivery Time:</b> {{order['delivery_timeslot']}}</span> <span  data-badge-caption="" :class="{'pending':order['status']=='pending', 'canceled':order['status']=='canceled','checked-out':order['status']=='checked out', 'served':order['status']=='served' }" class="badge new">Status:{{order['status']}}</span></p>
+                            <p class="delivery-p"><span><b>Delivery Date:</b> {{order['formatted_delivery_date']}} <b>Delivery Time:</b> {{order['delivery_timeslot']}}</span> <span  data-badge-caption="" :class="{'pending':order['status'].toLowerCase()=='pending', 'canceled':order['status'].toLowerCase()=='canceled','checked-out':order['status'].toLowerCase()=='checked out', 'served':order['status'].toLowerCase()=='served' }" class="badge new">Status:{{order['status']}}</span></p>
                             <p class="delivery delivery-p"><span> <b>Destination:</b> {{order['delivery_town']}}, {{order['delivery_parish']}}</span></p>
                             <div class="items" v-for="item in order['order_items']" :key="item['grocery_id']">
                                 <img :src="`${api}/uploads/${item['photo']}`" alt="Grocery Image">
@@ -46,8 +46,8 @@
                             </div>
 
                             <div class="actions">
-                                <a href="" class="btn-small" v-if="order['status']=='pending'">Cancel Order</a>
-                                <a href="" class="btn-small" v-else>View Order</a>
+                                <a class="btn-small" @click="cancel(order['order_id'])" v-if="order['status']=='pending'">Cancel Order</a>
+                                <a class="btn-small" v-else>View Order</a>
                             </div>
                         </div>
                     </div>
@@ -79,7 +79,16 @@ export default {
         ...mapGetters(['orders', 'customer'])
     },
     methods:{
-        ...mapActions(['getOrders', 'getCustomer'])
+        ...mapActions(['getOrders', 'getCustomer', 'cancelOrder']),
+        async cancel(id){
+            let resp = await this.cancelOrder(id);
+            if(resp){
+                M.toast({html: 'Order Cancelled'});
+            }
+            else{
+                M.toast({html: 'An error occurred. Please try again.'});
+            }
+        }
     },
     
 }

@@ -35,6 +35,22 @@ export default {
             }
         });
     },
+    async cancelOrder(token, orderId){
+        return new Promise(async function(resolve, reject){
+            const resp = await axios.get(`${config.api}/manage_customer_account/cancel_order/${orderId}`, {
+                headers:{
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (resp.status == HTTP_STATUS_OK){
+                return resolve(resp.data);
+            }
+            else{
+                reject(resp.data);
+            }
+        });
+    },
     async getDeliveryTimeslots(token){
         return new Promise(async function(resolve, reject){
             const resp = await axios.get(`${config.api}/manage_customer_account/get_delivery_timeslots`, {

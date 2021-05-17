@@ -19,7 +19,7 @@
           <div class="categories vld-parent">
             <span class="categories-title">Product Categories</span>
             <ul v-if="!isLoading" class="categories-list">
-                 <li v-for="category of Object.keys(categories).sort().slice(0,9)" :key="category">
+                 <li @click="goto(category)" v-for="category of Object.keys(categories).sort().slice(0,9)" :key="category">
                   <img :src="`${api}/uploads/${categories[category][0]['photo']}`" alt="Grocery Image">
                   <span>{{category}}</span>
                   <strong>{{categories[category].length}}</strong>
@@ -57,7 +57,7 @@
               </div>
               <div class="card-content">
                 <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name}}</a> </span>
-                <p class="units"> <i class="material-icons tiny" :class="{'in-stock':grocery['quantity']>0, 'out-of-stock':grocery['quantity']==0}">check_circle</i> <b>In stock</b>- 1 {{grocery['units']}}</p>
+                <p class="units"> <i class="material-icons tiny" :class="{'in-stock':grocery['quantity']>0, 'out-of-stock':grocery['quantity']==0}">check_circle</i> <b>({{grocery['quantity']}}) In stock</b>- per {{grocery['units']}}</p>
                 <p class="price">${{grocery['cost_per_unit']}}</p>
               </div>
               <div class="card-action">
@@ -90,7 +90,7 @@
               </div>
               <div class="card-content">
                 <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name}}</a> </span>
-                <p class="units"> <i class="material-icons tiny" :class="{'in-stock':grocery['quantity']>0, 'out-of-stock':grocery['quantity']==0}">check_circle</i> <b>In stock</b>- 1 {{grocery['units']}}</p>
+                <p class="units"> <i class="material-icons tiny" :class="{'in-stock':grocery['quantity']>0, 'out-of-stock':grocery['quantity']==0}">check_circle</i> <b>({{grocery['quantity']}}) In stock</b>- 1 {{grocery['units']}}</p>
                 <p class="price">${{grocery['cost_per_unit']}}</p>
               </div>
               <div class="card-action">
@@ -212,6 +212,8 @@ export default {
     this.localCategories = this.categories;
     this.api = config.api;
     this.isLoading = false;
+
+    M.toast({html: `Welcome!`});
   },
   mounted(){
     var elems = document.querySelectorAll('.modal');
@@ -277,6 +279,9 @@ export default {
         }
       }
       this.localCategories =  result;
+    },
+    goto(){
+
     }
   },
 }

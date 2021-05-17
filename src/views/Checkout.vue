@@ -217,6 +217,11 @@ export default {
                     return;
                 }
 
+                if(this.deliveryTime == ''){
+                    M.toast({html: 'Set delivery time'});
+                    return;
+                }
+
                 let resp = await this.createOrder();
                 if(!resp){
                     M.toast({html: 'An error occurred. Please try again.'});

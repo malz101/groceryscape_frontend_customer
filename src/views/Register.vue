@@ -53,7 +53,7 @@
                         </select>
                     </div>
                     <button class="btn bg-color sign-up-btn" type="submit">Register <i class="material-icons right tiny">send</i></button>
-                    <div>
+                    <div class="legal">
                         <p>Your personal data will be used to support your experience throughout this website and to manage access to your account.</p>
                     </div>  
                 </form>
@@ -81,7 +81,7 @@ export default {
         }
     },
     methods:{
-        ...mapActions(['register']),
+        ...mapActions(['register', 'login']),
         async signUp(event){
             event.preventDefault();            
             if(this.password != this.confirmPassword){
@@ -91,22 +91,30 @@ export default {
 
             let registerForm = new FormData();
 
-            registerForm.set('firstname', this.firstName);
-            registerForm.set('lastName', this.lastName);
+            registerForm.set('first_name', this.firstName);
+            registerForm.set('last_name', this.lastName);
             registerForm.set('street', this.street);
             registerForm.set('town', this.town);
             registerForm.set('parish', this.parish);
             registerForm.set('gender', this.gender);
             registerForm.set('email', this.email);
-            registerForm.set('phone', this.phone);
+            registerForm.set('telephone', this.phone);
             registerForm.set('password', this.password);
 
             let resp = await this.register(registerForm);
 
             if(resp){
                 M.toast({html: 'Registration successful. Happy shopping!'});
-                this.$router.push('/');
-                return;
+                const form = new FormData();
+                form.set('email', this.email);
+                form.set('password', this.password);
+                const isSignedIn = await this.login(form);
+                if(isSignedIn){
+                    this.$router.push('/');
+                }
+                else{
+                    M.toast({html: 'Login failed. Please try again.'});    
+                }
             }
             else{
                 M.toast({html: 'Registration failed. Please try again.'});
@@ -173,6 +181,7 @@ h4{
             border: 1px solid #9e9e9e;
             border-radius: 2px;
             box-sizing: border-box;
+            height: 30px;
             padding-left: 8px;
             font-size: 0.9em;
             width: 100%;
@@ -186,6 +195,11 @@ h4{
         width:150px;
         margin: 10px 0;
         display: block;
+    }
+    .legal p{
+        font-size: 0.9em;
+        color: var(--light-color);
+        font-style: italic;
     }
 }
 

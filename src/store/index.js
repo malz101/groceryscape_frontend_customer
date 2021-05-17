@@ -5,7 +5,7 @@ import authService from '../service/auth.service';
 import cartService from '../service/cart.service';
 import paymentService from '../service/payment.service';
 import orderService from '../service/order.service';
-import recommendService from '../service/recommend.service'
+import recommendService from '../service/recommend.service';
 
 Vue.use(Vuex);
 
@@ -139,7 +139,7 @@ export default new Vuex.Store({
       return authService.register(payload)
       .then(({msg})=>{
         if(msg == 'account created'){
-          return dispatch('login',{'email':payload['email'], 'password':payload['password']});
+          return true;
         }
         return false;
       })
@@ -253,9 +253,11 @@ export default new Vuex.Store({
       .then(({msg, data})=>{
         if(msg == ''){
           commit('setOrders', data['orders']);
+          return true;
         }
         else{
           commit('setOrders', []);
+          return true;
         }
       })
       .catch(err=>{
@@ -279,6 +281,21 @@ export default new Vuex.Store({
         alert(err);
         return false;
       })
+    },
+    cancelOrder({dispatch, getters}, orderId){
+      return orderService.cancelOrder(getters.token, orderId)
+      .then(({msg})=>{
+        if(msg == 'order successfully cancelled'){
+          return dispatch('getOrders');
+        }
+        else{
+          return false;
+        }
+      })
+      .catch(err=>{
+        alert(err);
+        return false;
+      });
     },
     getDeliveryTimeslots({commit, getters}){
       return orderService.getDeliveryTimeslots(getters.token)

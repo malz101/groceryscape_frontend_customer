@@ -161,15 +161,6 @@ export default {
     td:nth-child(1), th:nth-child(1){
         width: 150px;
     }
-    .empty-cart{
-        display: flex;
-        flex-direction: column;
-
-        span{
-            font-size:2em ;
-            font-weight: bold;
-        }
-    }
     th{
         padding-left: 0;
     }
@@ -188,6 +179,18 @@ export default {
         padding: 8px;
         box-sizing: border-box;
         width: 100px;
+    }
+    .empty-cart{
+        .btn-small{
+            background: var(--bg-primary);
+            border-radius: 50%;
+            padding-right: 0.5em;
+            padding-left: 0.5em;
+            box-shadow: none;
+        }   
+        .btn-small:hover{
+            opacity: 0.5;
+        }
     }
 }
 

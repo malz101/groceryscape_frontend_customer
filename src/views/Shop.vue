@@ -73,7 +73,7 @@
                                 <div class="card-stacked">
                                     <div class="card-content">
                                         <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name}}</a> </span>
-                                        <p class="units"> <i class="material-icons tiny" :class="{'in-stock':grocery['quantity']>0, 'out-of-stock':grocery['quantity']==0}">check_circle</i> <b>In stock</b>- 1 {{grocery['units']}}</p>
+                                        <p class="units"> <i class="material-icons tiny" :class="{'in-stock':grocery['quantity']>0, 'out-of-stock':grocery['quantity']==0}">check_circle</i> <b>({{grocery['quantity']}}) In stock</b>- 1 {{grocery['units']}}</p>
                                         <p class="price">${{grocery['cost_per_unit']}}</p>
                                         <p class="description"> {{grocery['description']}} </p>
                                         <a v-if="!(idsInCart.includes(grocery.id))" @click="addItemToCart(grocery['id'])" class="btn-small add-to-cart-btn"> <i class="material-icons tiny">add_shopping_cart</i> Add to Cart</a>
@@ -119,7 +119,6 @@ export default {
             await this.getOrders();
 
             this.randomPick = Math.floor(Math.random()*(this.orders.length-1));
-            console.log(this.orders.length);
             if(this.orders.length>0){
                 for(let grocery of this.recommendedGroceries){
                     if(this.topPicks.length>10){
@@ -133,6 +132,8 @@ export default {
         }
         this.api = config.api;
         [this.activeCategoryName, this.activeCategory] = Object.entries(this.categories).sort()[0];
+        
+
         this.isLoading = false;
     },
     mounted(){
