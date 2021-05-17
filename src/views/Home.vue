@@ -32,6 +32,21 @@
           <div class="slider">
             <ul class="slides">
               <li>
+                <img src="../assets/grocery2.jpg">
+              </li>
+              <li>
+                <img src="../assets/grocery0.jpg">
+              </li>
+              <li>
+                <img src="../assets/wine.jpg">
+              </li>
+              <li>
+                <img src="../assets/grocery1.jpg">
+              </li>
+              <li>
+                <img src="../assets/snacks.jpg">
+              </li>
+              <li>
                 <img src="../assets/breakfast1.jpg">
               </li>
               <li>

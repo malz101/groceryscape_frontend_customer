@@ -245,7 +245,6 @@ export default {
                 await this.scheduleOrder(scheduleForm);
 
                 if(this.paymentMethod == 'direct'){
-                    console.log(this.paymentMethod);
                     this.isLoading = true;
                     let result = await this.stripe.createPaymentMethod({
                         type: 'card',
