@@ -212,8 +212,6 @@ export default {
     this.localCategories = this.categories;
     this.api = config.api;
     this.isLoading = false;
-
-    M.toast({html: `Welcome!`});
   },
   mounted(){
     var elems = document.querySelectorAll('.modal');
@@ -280,8 +278,8 @@ export default {
       }
       this.localCategories =  result;
     },
-    goto(){
-
+    goto(category){
+      this.$router.push(`/shop?category=${category}`);
     }
   },
 }

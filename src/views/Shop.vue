@@ -45,14 +45,14 @@
                                 <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" :color="'#080'" />
                             </div>
                             <ul v-else-if="!isLoading && !isLoggedIn" class="suggestions-list">
-                                <li v-for="grocery of featuredItems" :key="grocery['id']">
+                                <li @click="goToItem(grocery.id)" v-for="grocery of featuredItems" :key="grocery['id']">
                                     <img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image">
                                     <a> {{grocery['name']}} </a>
                                 </li>
                             </ul>
                             
                             <ul v-else class="suggestions-list">
-                                <li v-for="grocery of topPicks" :key="grocery['id']">
+                                <li @click="goToItem(grocery.id)" v-for="grocery of topPicks" :key="grocery['id']">
                                     <img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image">
                                     <a> {{grocery['name']}} </a>
                                 </li>
@@ -132,7 +132,10 @@ export default {
         }
         this.api = config.api;
         [this.activeCategoryName, this.activeCategory] = Object.entries(this.categories).sort()[0];
-        
+        if(this.$route.query['category']){
+            this.activeCategoryName = this.$route.query['category'];
+            this.activeCategory = this.categories[this.activeCategoryName];
+        }
 
         this.isLoading = false;
     },
@@ -148,6 +151,9 @@ export default {
         showCategory(category){
             this.activeCategoryName = category;
             this.activeCategory = this.categories[category];
+        },
+        async goToItem(id){
+            this.$router.push(`/item/${id}`)
         },
         async setRating(rating, groceryId){
             if(this.isLoggedIn){
@@ -256,6 +262,14 @@ export default {
                     gap: 10px;
                     border-bottom: 1px solid #eee;
                 }
+                li:hover{
+                    background: #ddd;
+                    cursor: pointer;
+                    a{
+                        color: var(--bg-primary);
+                        text-decoration: underline;
+                    }
+                }
                 img{
                     width: 25px;
                     height: 25px;
@@ -268,10 +282,6 @@ export default {
                 a.active{
                     color: green;
                     font-weight: bold;
-                    text-decoration: underline;
-                }
-                a:hover{
-                    color: var(--bg-primary);
                     text-decoration: underline;
                 }
             }
@@ -303,6 +313,14 @@ export default {
                     gap: 10px;
                     border-bottom: 1px solid #eee;
                 }
+                li:hover{
+                    background: #ddd;
+                    cursor: pointer;
+                    a{
+                        color: var(--bg-primary);
+                        text-decoration: underline;
+                    }
+                }
                 img{
                     width: 25px;
                     height: 25px;
@@ -317,10 +335,7 @@ export default {
                     font-weight: bold;
                     text-decoration: underline;
                 }
-                a:hover{
-                    color: var(--bg-primary);
-                    text-decoration: underline;
-                }
+
             }
         }
 

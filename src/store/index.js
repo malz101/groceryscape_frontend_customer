@@ -173,7 +173,6 @@ export default new Vuex.Store({
               list[grocery['category']] = [grocery];
           }
         }
-
         commit('setCategories',list);
       });
     },
