@@ -10,6 +10,7 @@ import OrderHistory from '../views/OrderHistory';
 import Register from '../views/Register';
 import Checkout from '../views/Checkout';
 import Item from '../views/Item';
+import Invoice from '../views/Invoice';
 import store from '../store';
 
 Vue.use(VueRouter)
@@ -54,6 +55,10 @@ const routes = [
   {
     path:'/order-history',
     component: OrderHistory
+  },
+  {
+    path:'/invoice',
+    component:Invoice
   },
   { 
     path: "*", 

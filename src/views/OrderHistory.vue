@@ -28,7 +28,7 @@
                         <h5>
                             <i class="material-icons">redeem</i><span>Orders</span>
                         </h5>
-                        <div v-if="!isLoading" class="cards">
+                        <div v-if="!isLoading && !isInvoice" class="cards">
                             <div class="card item-card" v-for="order in orders" :key="order['order_id']">
                                 <p class="delivery-p"><span><b>Delivery Date:</b> {{order['formatted_delivery_date']}} <b>Delivery Time:</b> {{order['delivery_timeslot']}}</span> <span  data-badge-caption="" :class="{'pending':order['status'].toLowerCase()=='pending', 'cancelled':order['status'].toLowerCase()=='cancelled','checked-out':order['status'].toLowerCase()=='checked out', 'delivered':order['status'].toLowerCase()=='delivered' }" class="badge new">Status:{{order['status']}}</span></p>
                                 <p class="delivery delivery-p"><span> <b>Destination:</b> {{order['delivery_town']}}, {{order['delivery_parish']}}</span></p>
@@ -47,13 +47,44 @@
                                 </div>
 
                                 <div class="actions">
-                                    <a class="btn-small" @click="cancel(order['order_id'])" v-if="order['status']=='pending'">Cancel Order</a>
+                                    <a class="btn-small cancelled" @click="cancel(order['order_id'])" v-if="order['status']=='pending'">Cancel Order</a>
                                     <a class="btn-small" v-else>View Order</a>
                                     <a class="btn-small">Buy it again</a>
                                 </div>
                             </div>
                         </div>
-                        
+                        <div v-else-if="!isLoading && isInvoice">
+                            <div class="invoice-header">
+                                <h4> Order Invoice</h4>
+                            </div>
+                            <div class="card item-card" v-for="order in [orderInvoice]" :key="order['order_id']">
+                                <p class="delivery-p"><span><b>Delivery Date:</b> {{order['formatted_delivery_date']}} <b>Delivery Time:</b> {{order['delivery_timeslot']}}</span> <span  data-badge-caption="" :class="{'pending':order['status'].toLowerCase()=='pending', 'cancelled':order['status'].toLowerCase()=='cancelled','checked-out':order['status'].toLowerCase()=='checked out', 'delivered':order['status'].toLowerCase()=='delivered' }" class="badge new">Status:{{order['status']}}</span></p>
+                                <p class="delivery delivery-p"><span> <b>Destination:</b> {{order['delivery_town']}}, {{order['delivery_parish']}}</span></p>
+                                <div class="items" v-for="item in order['order_items']" :key="item['grocery_id']">
+                                    <a :href="'/item/'+item['grocery_id']"><img :src="`${api}/uploads/${item['photo']}`" alt="Grocery Image"></a>
+                                    <div class="item-data">
+                                        <p class="name"> <a :href="'/item/'+item['grocery_id']"><b>{{item['name']}}</b></a> </p>
+                                        <p class="quantity">x{{item['quantity']}} - {{item['total_weight']}}</p>
+                                        <p class="item-total"><b>${{item['total']}}</b></p>
+                                    </div>
+                                </div>
+                                <div class="total">
+                                    <p class="subtotal"><span>Subtotal:</span> <span>${{Number.parseFloat(order['subtotal']).toFixed(2)}}</span></p>
+                                    <p class="delivery-cost"><span>Delivery Cost:</span> <span>${{Number.parseFloat(order['delivery_cost']).toFixed(2)}}</span></p>
+                                    <p class="order-total"><span><b>Total:</b></span> <span><b>${{Number.parseFloat(order['total']).toFixed(2)}}</b></span></p>
+                                </div>
+
+                                <div class="actions">
+                                    <a class="btn-small cancelled" @click="cancel(order['order_id'])" v-if="order['status']=='pending'">Cancel Order</a>
+                                    <a class="btn-small" v-else>View Order</a>
+                                    <a class="btn-small">Buy it again</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else-if="!isLoading && orders.length==0" class="nothing-to-see">
+                            <h4>No Orders/Invoices to display</h4>
+                            <img src="../assets/seo.svg" alt="Not Found">
+                        </div>
                         <div v-else class="container loading">
                             <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" :color="'#080'" />
                         </div>
@@ -71,7 +102,9 @@ export default {
     data(){
         return{
              api:'',
-             isLoading: true
+             isLoading: true,
+             isInvoice:false,
+             orderInvoice:{}
         }
     },
     async created(){
@@ -79,6 +112,18 @@ export default {
         await this.getOrders();
         await this.getCustomer();
         this.api = config.api;
+        if('invoice' in this.$route.query){
+            for(let order of this.orders){
+                if(order['order_id']==this.$route.query['invoice']){
+                    this.orderInvoice = order;
+                    this.isInvoice = true;
+                }
+            }
+            if(this.orderInvoice=={}){
+                this.isInvoice=false;
+            }
+        }
+
         this.isLoading = false;
     },
     mounted(){
@@ -128,6 +173,25 @@ export default {
 
 .section{
     background: var(--color-accent);
+}
+
+.invoice-header h4, .nothing-to-see h4{
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding: 16px;
+    font-weight: bold;
+    font-size: 2em;
+}
+
+.nothing-to-see{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    img{
+        width: 300px;
+    }
 }
 
 .dashboard-content{
@@ -253,6 +317,9 @@ export default {
                 text-transform: none;
                 background: green;
             }
+            .cancelled{
+                background: red;
+            }   
         }
     }
 }

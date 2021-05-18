@@ -268,16 +268,15 @@ export default {
                         paymentForm.set("payment_method_id", result.paymentMethod.id);
                         paymentForm.set("order_id", orderId);
                         await this.makePayment(paymentForm);
-                        console.log('Making card payment.');
                         this.isLoading = false;  
                         M.toast({html: 'Payment Complete. Checkout Successful!'});
-                        this.$router.push('/');
+                        this.$router.push('/order-history?invoice='+orderId);
                     }   
                     return; 
                 }
                 else{
                     M.toast({html: 'Checkout Successful! Your order has been placed.'});
-                    this.$router.push('/');
+                    this.$router.push('/order-history?invoice='+orderId);
                     return;
                 }
             }
