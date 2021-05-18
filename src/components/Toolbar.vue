@@ -3,8 +3,8 @@
         <div class="header-bar">
             <span id="brand">  <router-link to="/"><img src="../assets/default.svg" alt="" srcset=""></router-link> </span>
             <div class="search-div">
-                <input type="search" name="search" id="search" v-model="searchString" placeholder="Search for products..." @input="search">
-                <a @click="search" class="btn search-btn">Search</a>
+                <input type="search" name="search" id="search" v-model="searchString" placeholder="Search for products...">
+                <a :href="`/shop?search=${searchString}`" class="btn search-btn">Search</a>
             </div>
             <div class="cart-logout-container">
                 <span class="cart">
@@ -102,6 +102,7 @@ export default {
             border: 1px solid #555;
             height: 35px;
             margin-bottom: 0px;
+            color: white;
         }
         input[type=search]:focus{
             border: 1px solid var(--color-primary);

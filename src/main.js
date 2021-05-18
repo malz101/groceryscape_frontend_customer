@@ -26,6 +26,7 @@ Vue.component('star-rating', StarRating);
 Vue.component('date-picker', DatePicker);
 Vue.component('loading', Loading);
 
+
 new Vue({
   router,
   store,

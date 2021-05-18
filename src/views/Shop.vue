@@ -39,22 +39,22 @@
                         <div class="suggestions vld-parent">
                             <span v-if="isLoading" class="suggestions-title">Top products<span class="new badge" data-badge-caption="">You may like</span></span> 
                             <span v-else-if="!isLoading && !isLoggedIn" class="suggestions-title">Top products<span class="new badge" data-badge-caption="">You may like</span></span> 
-                            <span v-else-if="!isLoading && isLoggedIn && orders.length>0" class="suggestions-title">Since you bought {{orders[randomPick]['order_items'][0]['name']}}, you may also like:</span> 
+                            <!-- <span v-else-if="!isLoading && isLoggedIn && orders.length>0" class="suggestions-title">Since you bought , you may also like:</span>  -->
                             <span v-else class="suggestions-title">Suggested for you<span class="new badge" data-badge-caption="">You may like</span></span> 
                             <div v-if="isLoading" class="container loading">
                                 <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" :color="'#080'" />
                             </div>
                             <ul v-else-if="!isLoading && !isLoggedIn" class="suggestions-list">
-                                <li @click="goToItem(grocery.id)" v-for="grocery of featuredItems" :key="grocery['id']">
+                                <li @click="goToItem(grocery.id)" v-for="grocery of featuredItems" :key="'featured'+grocery['id']">
                                     <img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image">
-                                    <a> {{grocery['name']}} </a>
+                                    <a> {{grocery['name'].split(',')[0]}} </a>
                                 </li>
                             </ul>
                             
                             <ul v-else class="suggestions-list">
-                                <li @click="goToItem(grocery.id)" v-for="grocery of topPicks" :key="grocery['id']">
+                                <li @click="goToItem(grocery.id)" v-for="grocery of recommendedGroceries.slice(0,10)" :key="'recommended'+grocery['id']">
                                     <img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image">
-                                    <a> {{grocery['name']}} </a>
+                                    <a> {{grocery['name'].split(',')[0]}} </a>
                                 </li>
                             </ul>
                         </div>
@@ -65,23 +65,27 @@
                             <img src="../assets/default.svg" alt="GroceryScape">
                             <span>Quality & Freshness Guaranteed! Good Health.</span>
                         </div>
-                        <div v-if="!isLoading" class="product-grid">
-                            <div class="card horizontal" v-for="grocery of activeCategory" :key="grocery.id">
+                        <div v-if="!isLoading && activeCategory.length>0" class="product-grid">
+                            <div class="card horizontal" v-for="grocery of activeCategory" :key="'active'+grocery.id">
                                 <div class="card-image">
                                     <a :href="'/item/'+grocery.id"><img :src="`${api}/uploads/${grocery['photo']}`" alt="Grocery Image"></a>
                                 </div>
                                 <div class="card-stacked">
                                     <div class="card-content">
-                                        <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name}}</a> </span>
+                                        <span class="card-title"> <a :href="'/item/'+grocery.id">{{grocery.name.split(',')[0]}}</a> </span>
                                         <p class="units"> <i class="material-icons tiny" :class="{'in-stock':grocery['quantity']>0, 'out-of-stock':grocery['quantity']==0}">check_circle</i> <b>({{grocery['quantity']}}) In stock</b>- 1 {{grocery['units']}}</p>
                                         <p class="price">${{grocery['cost_per_unit']}}</p>
                                         <p class="description"> {{grocery['description']}} </p>
                                         <a v-if="!(idsInCart.includes(grocery.id))" @click="addItemToCart(grocery['id'])" class="btn-small add-to-cart-btn"> <i class="material-icons tiny">add_shopping_cart</i> Add to Cart</a>
                                         <a v-else href="/shop" class="btn-small add-to-cart-btn"> <i class="material-icons tiny">shopping_cart</i> View cart</a>
-                                        <star-rating :clearable="true" :rating="0" :show-rating="false" :star-size="14" :animate="true" @rating-selected ="setRating($event, grocery.id)"></star-rating> 
+                                        <star-rating :clearable="true" :rating="map(grocery['rating'], 0,10, 0, 5)" :show-rating="false" :star-size="14" :animate="true" @rating-selected ="setRating($event, grocery.id)"></star-rating> 
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                        <div v-else-if="!isLoading && activeCategory.length==0" class="container empty-div">
+                            <p class="empty-search">No Items Found</p>
+                            <img src="../assets/seo.svg" alt="Not Found">
                         </div>
                         <div v-else class="container loading">
                             <loading :active.sync="isLoading" :is-full-page="false" :width="50" :height="50" :color="'#080'" />
@@ -105,8 +109,7 @@ export default {
             activeCategoryName:'',
             api:'',
             isLoading:false,
-            topPicks:[],
-            randomPick:0
+            topPicks:[]
         }
     },
     async created(){
@@ -117,24 +120,39 @@ export default {
             await this.getCart();
             await this.getRecommendedGroceries();
             await this.getOrders();
-
-            this.randomPick = Math.floor(Math.random()*(this.orders.length-1));
-            if(this.orders.length>0){
-                for(let grocery of this.recommendedGroceries){
-                    if(this.topPicks.length>10){
-                        break;
-                    }
-                    if(grocery['category']==this.orders[this.randomPick]['order_items'][0]['category']){
-                        this.topPicks.push(grocery);
-                    }
-                }
-            }
         }
         this.api = config.api;
         [this.activeCategoryName, this.activeCategory] = Object.entries(this.categories).sort()[0];
-        if(this.$route.query['category']){
+        if('category' in this.$route.query){
             this.activeCategoryName = this.$route.query['category'];
             this.activeCategory = this.categories[this.activeCategoryName];
+        }
+        else if('featured' in this.$route.query){
+            this.activeCategory = this.featuredItems; 
+            this.activeCategoryName = '';
+        }
+        else if('suggestion' in this.$route.query){
+            this.activeCategory = this.recommendedGroceries; 
+            this.activeCategoryName = '';
+        }
+        else if('search' in this.$route.query){
+            
+            let search = this.$route.query['search'];
+            let result = [];
+            for(let [category, groceries] of Object.entries(this.categories)){                
+                for(let grocery of groceries){
+                    if(grocery['name'].split(',')[0].toLowerCase().includes(search.toLowerCase())){
+                        if(!(category in result)){
+                            result.push(grocery);
+                        }
+                        else{
+                            result = [grocery];
+                        }
+                    }
+                }
+            }
+            this.activeCategory =  result;
+            this.activeCategoryName = '';
         }
 
         this.isLoading = false;
@@ -148,6 +166,9 @@ export default {
     },
     methods:{
         ...mapActions(['getGroceries', 'getCart', 'addToCart', 'rateGrocery', 'getRecommendedGroceries', 'getFeaturedItems', 'getOrders']),
+        map(value, x1, y1, x2, y2) {
+        return Number.parseInt((Number.parseInt(value) - x1) * (y2 - x2) / (y1 - x1) + x2);
+        },
         showCategory(category){
             this.activeCategoryName = category;
             this.activeCategory = this.categories[category];
@@ -160,7 +181,14 @@ export default {
                 let form = new FormData();
                 form.set('item_id', groceryId);
                 form.set('rating', rating);
-                await this.rateGrocery(form);
+                let resp = await this.rateGrocery(form);
+
+                if(resp){
+                    M.toast({html: 'Item rated'});
+                }
+                else{
+                    M.toast({html: 'An error occurred. Please try again.'});
+                }
             }
             else{
                 var notLoggedInModal = document.querySelector('#not-logged-in-modal');
@@ -226,6 +254,17 @@ export default {
 
 .product-section{
     background: var(--color-accent);
+}
+
+.empty-search{
+    font-size: 2em;
+    text-align: center;
+    font-weight: bold;
+}
+
+.empty-div img{
+    width: 100%;
+    height: 300px;
 }
 
 .shop{

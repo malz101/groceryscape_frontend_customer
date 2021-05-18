@@ -121,7 +121,7 @@
                 </p>
                 <p>
                     <label for="direct">
-                        <input type="radio" @change="cardChosen" name="payment" id="direct" value="direct" v-model="paymentMethod">
+                        <input type="radio" @change="cardChosen" name="payment" id="direct" value="card" v-model="paymentMethod">
                         <span>Direct Bank Transfer</span>
                     </label>
                 </p>
@@ -222,7 +222,10 @@ export default {
                     return;
                 }
 
-                let resp = await this.createOrder();
+                let paymentTypeForm = new FormData();
+                paymentTypeForm.set('payment_type', this.paymentMethod);
+
+                let resp = await this.createOrder(paymentTypeForm);
                 if(!resp){
                     M.toast({html: 'An error occurred. Please try again.'});
                     return;
@@ -244,7 +247,7 @@ export default {
 
                 await this.scheduleOrder(scheduleForm);
 
-                if(this.paymentMethod == 'direct'){
+                if(this.paymentMethod == 'card'){
                     this.isLoading = true;
                     let result = await this.stripe.createPaymentMethod({
                         type: 'card',

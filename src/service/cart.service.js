@@ -68,9 +68,9 @@ export default{
             }
         });
     },
-    async createOrder(token){
+    async createOrder(token, payload){
         return new Promise(async(resolve, reject)=>{
-            const resp = await axios.get(`${config.api}/manage_customer_account/create_order`, {
+            const resp = await axios.post(`${config.api}/manage_customer_account/create_order`,payload, {
                 headers:{
                     Authorization: `Bearer ${token}`,
                 }

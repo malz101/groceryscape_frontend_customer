@@ -252,11 +252,11 @@ export default new Vuex.Store({
       .then(({msg, data})=>{
         if(msg == ''){
           commit('setOrders', data['orders']);
-          return true;
+          return data['orders'];
         }
         else{
           commit('setOrders', []);
-          return true;
+          return [];
         }
       })
       .catch(err=>{
@@ -351,8 +351,8 @@ export default new Vuex.Store({
         alert('An error occurred.'+msg);
       })
     },
-    createOrder({dispatch, getters}){
-      return cartService.createOrder(getters.token)
+    createOrder({dispatch, getters}, payload){
+      return cartService.createOrder(getters.token, payload)
       .then(async ({msg, data})=>{
         if(msg == 'success'){
           await dispatch('emptyCart');
@@ -385,10 +385,10 @@ export default new Vuex.Store({
     rateGrocery({getters}, payload){
       return groceriesService.rateGrocery(getters.token, payload)
       .then((result)=>{
-        alert('Rate sent');
+        return true;
       })
       .catch(({msg})=>{
-        alert('An error occurred.'+msg);
+        return false;
       })
     },
     getPublicKey({getters, commit}){

@@ -16,7 +16,7 @@ export default {
     },
     async rateGrocery(token, body){
         return new Promise(async function(resolve, reject){
-            const resp = await axios.post(`${config.api}/manage_rating/rate_grocery`,body,{
+            const resp = await axios.post(`${config.api}/manage_customer_account/rate_grocery`,body,{
                 headers:{
                     Authorization: `Bearer ${token}`,
                 }

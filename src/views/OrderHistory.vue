@@ -30,7 +30,7 @@
                         </h5>
                         <div v-if="!isLoading" class="cards">
                             <div class="card item-card" v-for="order in orders" :key="order['order_id']">
-                                <p class="delivery-p"><span><b>Delivery Date:</b> {{order['formatted_delivery_date']}} <b>Delivery Time:</b> {{order['delivery_timeslot']}}</span> <span  data-badge-caption="" :class="{'pending':order['status'].toLowerCase()=='pending', 'canceled':order['status'].toLowerCase()=='canceled','checked-out':order['status'].toLowerCase()=='checked out', 'served':order['status'].toLowerCase()=='served' }" class="badge new">Status:{{order['status']}}</span></p>
+                                <p class="delivery-p"><span><b>Delivery Date:</b> {{order['formatted_delivery_date']}} <b>Delivery Time:</b> {{order['delivery_timeslot']}}</span> <span  data-badge-caption="" :class="{'pending':order['status'].toLowerCase()=='pending', 'cancelled':order['status'].toLowerCase()=='cancelled','checked-out':order['status'].toLowerCase()=='checked out', 'delivered':order['status'].toLowerCase()=='delivered' }" class="badge new">Status:{{order['status']}}</span></p>
                                 <p class="delivery delivery-p"><span> <b>Destination:</b> {{order['delivery_town']}}, {{order['delivery_parish']}}</span></p>
                                 <div class="items" v-for="item in order['order_items']" :key="item['grocery_id']">
                                     <a :href="'/item/'+item['grocery_id']"><img :src="`${api}/uploads/${item['photo']}`" alt="Grocery Image"></a>
@@ -176,13 +176,13 @@ export default {
             background: gold;
             color: #000;
         }
-        .canceled{
+        .cancelled{
             background: red;
         }
         .checked-out{
             background: orange;
         }
-        .served{
+        .delivered{
             background: green;
         }
 

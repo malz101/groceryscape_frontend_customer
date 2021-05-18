@@ -23,9 +23,7 @@
                             <td> {{cartItem['name']}} </td>
                             <td> ${{cartItem['cost_before_tax']}} </td>
                             <td> 
-                                <input v-if="isCartUpdating && (cartItem['grocery_id']!=updatingId)" type="text" :value="cartItem['quantity']" class="cart-quantity">
-                                <input v-else-if="!isCartUpdating" @change="quantityChange(cartItem['grocery_id'], cartItem['quantity'])" class="cart-quantity" type="number" :value="cartItem['quantity']" /> 
-                                <input v-else @change="quantityChange(cartItem['grocery_id'], cartItem['quantity'])" class="cart-quantity" type="number" v-model="newQuantity" /> 
+                                <input min="0" @change="quantityChange($event, cartItem['grocery_id'])" class="cart-quantity" type="number" :value="cartItem['quantity']"/> 
                             </td>
                             <td> ${{cartItem['cost_before_tax'] * cartItem['quantity']}} </td>
                             <td class="empty-cart"> <a @click="removeFromCart(cartItem['grocery_id'])" class="btn-small"><i class="material-icons tiny">close</i></a> </td>
@@ -79,7 +77,7 @@ export default {
         return{
             isCartUpdating:false,
             updatingId:'',
-            newQuantity:1,
+            newQuantities:{},
             api:'',
             isLoading:true
         }
@@ -98,22 +96,20 @@ export default {
         async removeFromCart(groceryId){
             await this.removeItemFromCart(groceryId);
         },
-        quantityChange(groceryId, amount){
-            if(!this.isCartUpdating){
-                this.isCartUpdating = true;
-                this.newQuantity = amount;
-                this.updatingId = groceryId;
-                return;
-            }
-            if(this.newQuantity<0){
-                this.newQuantity = 0;
+        quantityChange($event, groceryId){
+            this.isCartUpdating = true;
+            if($event.target.value){
+                if(!(groceryId in this.newQuantities)){
+                    this.newQuantities[groceryId] = $event.target.value;
+                    return;
+                }
+                else{
+                    this.newQuantities[groceryId] = $event.target.value;
+                }
             }
         },
         async updateCartQuantity(){
-            let updateCartForm = new FormData();
-            updateCartForm.set('item_id', this.updatingId);
-            updateCartForm.set('quantity', this.newQuantity);
-            let resp = await this.updateCart(updateCartForm);
+            let resp = await this.updateCart(this.newQuantities);
             
             if(resp){
                 M.toast({html: 'Cart updated'});
