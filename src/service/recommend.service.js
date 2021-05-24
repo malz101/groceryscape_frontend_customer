@@ -6,7 +6,7 @@ export default {
         return new Promise(async function(resolve, reject){
             var resp = {}
             try{
-                    resp = await axios.get(`${config.api}/manage_customer_account/get_recommended_groceries`,{
+                    resp = await axios.get(`${config.api}/customer/get_recommended_groceries`,{
                     headers:{
                         Authorization: `Bearer ${token}`
                     }

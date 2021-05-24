@@ -5,7 +5,7 @@ const HTTP_STATUS_OK = 200;
 export default {
     async getPublicKey(token){
         return new Promise(async function(resolve, reject){
-            const resp = await axios.get(`${config.api}/manage_customer_account/get_pay_key`, {
+            const resp = await axios.get(`${config.api}/customer/get_pay_key`, {
                 headers:{
                     Authorization: `Bearer ${token}`
                 }
@@ -22,7 +22,7 @@ export default {
     makePayment(token, body){
         return new Promise(async function(resolve, reject){
             try{
-                const resp = await axios.post(`${config.api}/manage_customer_account/pay`,body, {
+                const resp = await axios.post(`${config.api}/customer/pay`,body, {
                     headers:{
                         'Content-Type': 'application/json',
                         Authorization: `Bearer ${token}`

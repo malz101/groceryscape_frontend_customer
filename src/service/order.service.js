@@ -5,7 +5,7 @@ const HTTP_STATUS_OK = 200;
 export default {
     async getOrders(token){
         return new Promise(async function(resolve, reject){
-            const resp = await axios.get(`${config.api}/manage_customer_account/get_my_orders`, {
+            const resp = await axios.get(`${config.api}/customer/get_my_orders`, {
                 headers:{
                     Authorization: `Bearer ${token}`
                 }
@@ -19,15 +19,14 @@ export default {
             }
         });
     },
-    async getItemRating(token){
-        return new Promise(async function(resolve, reject){
-            const resp = await axios.get(`${config.api}/manage_customer_account/get_item_rating`, {
+    async createOrder(token, payload){
+        return new Promise(async(resolve, reject)=>{
+            const resp = await axios.post(`${config.api}/customer/create_order`,payload, {
                 headers:{
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
                 }
             });
-
-            if (resp.status == HTTP_STATUS_OK){
+            if(resp.status==200){
                 return resolve(resp.data);
             }
             else{
@@ -37,7 +36,7 @@ export default {
     },
     async cancelOrder(token, orderId){
         return new Promise(async function(resolve, reject){
-            const resp = await axios.get(`${config.api}/manage_customer_account/cancel_order/${orderId}`, {
+            const resp = await axios.get(`${config.api}/customer/cancel_order/${orderId}`, {
                 headers:{
                     Authorization: `Bearer ${token}`
                 }
@@ -53,7 +52,7 @@ export default {
     },
     async getDeliveryTimeslots(token){
         return new Promise(async function(resolve, reject){
-            const resp = await axios.get(`${config.api}/manage_customer_account/get_delivery_timeslots`, {
+            const resp = await axios.get(`${config.api}/customer/get_delivery_timeslots`, {
                 headers:{
                     Authorization: `Bearer ${token}`
                 }
@@ -69,7 +68,7 @@ export default {
     },
     async getOrderPreview(token, body){
         return new Promise(async function(resolve, reject){ 
-            const resp = await axios.get(`${config.api}/manage_customer_account/get_order_preview`,body, {
+            const resp = await axios.get(`${config.api}/customer/get_order_preview`,body, {
                 headers:{
                     Authorization: `Bearer ${token}`
                 }
@@ -101,7 +100,7 @@ export default {
     },
     async setDeliveryLocation(token, orderId, body){
         return new Promise(async function(resolve, reject){
-            const resp = await axios.post(`${config.api}/manage_customer_account/set_delivery_location/${orderId}`,body, {
+            const resp = await axios.post(`${config.api}/customer/set_delivery_location/${orderId}`,body, {
                 headers:{
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`

@@ -222,10 +222,17 @@ export default {
                     return;
                 }
 
-                let paymentTypeForm = new FormData();
-                paymentTypeForm.set('payment_type', this.paymentMethod);
+                let orderForm = new FormData();
+                orderForm.set('payment_type', this.paymentMethod);
+                orderForm.set('parish', this.parish);
+                orderForm.set('town', this.town);
+                orderForm.set('street', this.street);
+                orderForm.set('order_id', orderId);
+                orderForm.set('date', this.deliveryDate);
+                orderForm.set('timeslot', this.deliveryTime);
+                orderForm.set('notes', this.notes)
 
-                let resp = await this.createOrder(paymentTypeForm);
+                let resp = await this.createOrder(orderForm);
                 if(!resp){
                     M.toast({html: 'An error occurred. Please try again.'});
                     return;
@@ -233,19 +240,19 @@ export default {
                 
                 let orderId = resp['order']['order_id'];
 
-                let deliveryForm = new FormData();
-                deliveryForm.set('parish', this.parish);
-                deliveryForm.set('town', this.town);
-                deliveryForm.set('street', this.street);
+                // let deliveryForm = new FormData();
+                // deliveryForm.set('parish', this.parish);
+                // deliveryForm.set('town', this.town);
+                // deliveryForm.set('street', this.street);
 
-                await this.setDeliveryLocation({'orderId': orderId, 'body': deliveryForm});
+                // await this.setDeliveryLocation({'orderId': orderId, 'body': deliveryForm});
 
-                let scheduleForm = new FormData();
-                scheduleForm.set('order_id', orderId);
-                scheduleForm.set('date', this.deliveryDate);
-                scheduleForm.set('timeslot', this.deliveryTime);
+                // let scheduleForm = new FormData();
+                // scheduleForm.set('order_id', orderId);
+                // scheduleForm.set('date', this.deliveryDate);
+                // scheduleForm.set('timeslot', this.deliveryTime);
 
-                await this.scheduleOrder(scheduleForm);
+                // await this.scheduleOrder(scheduleForm);
 
                 if(this.paymentMethod == 'card'){
                     this.isLoading = true;

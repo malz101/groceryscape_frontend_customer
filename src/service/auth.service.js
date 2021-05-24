@@ -8,7 +8,7 @@ export default {
     async login(body){
         return new Promise(async(resolve, reject)=>{
             try{
-                const resp = await axios.post(`${config.api}/manage_customer_account/login`, body);
+                const resp = await axios.post(`${config.api}/customer/login`, body);
 
                 if(resp.status==HTTP_STATUS_OK){
                     return resolve(resp.data);
@@ -23,7 +23,7 @@ export default {
     async register(body){
         return new Promise(async(resolve, reject)=>{
             try{
-                const resp = await axios.post(`${config.api}/manage_customer_account/signup`, body);
+                const resp = await axios.post(`${config.api}/customer/signup`, body);
 
                 if(resp.status==HTTP_STATUS_CREATED){
                     return resolve(resp.data);
@@ -38,7 +38,7 @@ export default {
     async logout(token){
         return new Promise(async(resolve, reject)=>{
             try{
-                const resp = await axios.get(`${config.api}/manage_customer_account/logout`,{
+                const resp = await axios.get(`${config.api}/customer/logout`,{
                     headers:{
                         Authorization: `Bearer ${token}`,
                     }
@@ -57,7 +57,7 @@ export default {
     async getCustomer(token){
         return new Promise(async(resolve, reject)=>{
             try{
-                const resp = await axios.get(`${config.api}/manage_customer_account/get_customer`,{
+                const resp = await axios.get(`${config.api}/customer/get_customer`,{
                     headers:{
                         Authorization: `Bearer ${token}`,
                     }
